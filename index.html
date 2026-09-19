@@ -254,6 +254,50 @@
     50% { box-shadow: 0 0 0 10px rgba(230,57,70,0); }
   }
 
+  /* ------- Per-call countdown timer ------- */
+  .timer-wrap {
+    display: none;
+    margin-top: 12px;
+  }
+
+  .timer-label {
+    display: block;
+    font-weight: 900;
+    font-size: 0.85rem;
+    color: var(--green);
+    margin-bottom: 6px;
+    text-align: right;
+    transition: color 200ms ease;
+  }
+
+  .timer-bar-track {
+    width: 100%;
+    height: 10px;
+    background: var(--surface-2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .timer-bar-fill {
+    height: 100%;
+    width: 100%;
+    border-radius: 10px;
+    background: var(--green);
+    transition: width 120ms linear, background 300ms ease;
+  }
+
+  .timer-wrap.warning .timer-bar-fill { background: var(--yellow); }
+  .timer-wrap.warning .timer-label { color: var(--yellow); }
+
+  .timer-wrap.danger .timer-bar-fill { background: var(--red-dark); }
+  .timer-wrap.danger .timer-label { color: var(--red-dark); }
+  .timer-wrap.danger { animation: timerPulse 0.6s ease-in-out infinite; }
+
+  @keyframes timerPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
   .followup-section {
     margin-bottom: 16px;
   }
@@ -369,15 +413,24 @@
     border-radius: 18px;
     margin-bottom: 10px;
     min-height: 56px;
+    transition: box-shadow 200ms ease, filter 200ms ease;
   }
 
-  .vehicle-btn:disabled {
-    opacity: 0.5;
+  .vehicle-btn.selected {
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.6), 0 4px 10px rgba(0,0,0,0.3);
+    filter: brightness(1.12);
   }
+
+  .vehicle-btn:disabled.selected { opacity: 0.9; }
+  .vehicle-btn:disabled:not(.selected) { opacity: 0.35; }
 
   .vehicle-police { background: var(--blue-dark); }
   .vehicle-fire { background: var(--red-dark); }
   .vehicle-ems { background: #f4a90c; }
+
+  .vehicle-check {
+    margin-right: 8px;
+  }
 
   .eta-tag {
     font-size: 0.85rem;
@@ -385,6 +438,29 @@
     background: rgba(255,255,255,0.25);
     padding: 4px 10px;
     border-radius: 12px;
+  }
+
+  .confirm-dispatch-btn {
+    display: none;
+    width: 100%;
+    background: var(--green);
+    color: white;
+    font-weight: 900;
+    font-size: 1rem;
+    padding: 16px;
+    border-radius: 18px;
+    min-height: 52px;
+    margin-top: 4px;
+    box-shadow: 0 4px 0 #15803d;
+  }
+
+  .confirm-dispatch-btn.visible {
+    display: block;
+    animation: fadeSlideIn 250ms ease forwards;
+  }
+
+  .confirm-dispatch-btn:disabled {
+    opacity: 0.6;
   }
 
   .dispatching-overlay {
@@ -448,6 +524,10 @@
     animation: shakeIcon 500ms ease;
   }
 
+  .outcome-icon.partial {
+    animation: bounceScaleIn 500ms cubic-bezier(.36,1.5,.64,1);
+  }
+
   @keyframes bounceScaleIn {
     0% { transform: scale(0); opacity: 0; }
     60% { transform: scale(1.3); opacity: 1; }
@@ -469,6 +549,7 @@
   }
 
   .outcome-title.correct { color: var(--green); }
+  .outcome-title.partial { color: var(--orange); }
   .outcome-title.wrong { color: var(--red-dark); }
 
   .outcome-message {
@@ -549,6 +630,7 @@
   }
 
   .stat-correct .stat-value { color: var(--green); }
+  .stat-partial .stat-value { color: var(--orange); }
   .stat-wrong .stat-value { color: var(--red-dark); }
   .stat-streak .stat-value { color: var(--orange); }
 
@@ -596,6 +678,13 @@
       <div class="caller-label" id="caller-label">Unknown Caller</div>
       <div class="transcript-box" id="transcript-box"></div>
       <div class="urgency-badge" id="urgency-badge">Low</div>
+
+      <div class="timer-wrap" id="timer-wrap">
+        <span class="timer-label" id="timer-label">⏱ 0s</span>
+        <div class="timer-bar-track">
+          <div class="timer-bar-fill" id="timer-bar-fill"></div>
+        </div>
+      </div>
     </div>
 
     <div class="followup-section">
@@ -607,8 +696,9 @@
     <button class="choose-vehicle-btn" id="choose-vehicle-btn" disabled>Choose Vehicle</button>
 
     <div class="vehicle-section" id="vehicle-section" style="display:none;">
-      <div class="section-label">Dispatch a Vehicle</div>
+      <div class="section-label">Dispatch a Vehicle (select 1 or more)</div>
       <div id="vehicle-container"></div>
+      <button class="confirm-dispatch-btn" id="confirm-dispatch-btn" type="button">Confirm Dispatch</button>
     </div>
 
     <div class="dispatching-overlay" id="dispatching-overlay">
@@ -638,11 +728,15 @@
         <span class="stat-value" id="stat-handled">0</span>
       </div>
       <div class="stat-card stat-correct">
-        <span>Calls Correct</span>
-        <span class="stat-value" id="stat-correct">0</span>
+        <span>Perfect Dispatches</span>
+        <span class="stat-value" id="stat-perfect">0</span>
+      </div>
+      <div class="stat-card stat-partial">
+        <span>Partial Credit</span>
+        <span class="stat-value" id="stat-partial">0</span>
       </div>
       <div class="stat-card stat-wrong">
-        <span>Calls Wrong</span>
+        <span>Wrong Calls</span>
         <span class="stat-value" id="stat-wrong">0</span>
       </div>
       <div class="stat-card stat-streak">
@@ -674,7 +768,7 @@
         { questionText: "Is the intruder still inside?", answerText: "I heard footsteps a minute ago, so I think so." },
         { questionText: "Is anyone else in the house with you?", answerText: "No, I'm home alone right now." }
       ],
-      correctVehicle: "police",
+      correctVehicles: ["police"],
       vehicleETAs: { police: 4, fire: 9, ems: 7 }
     },
     {
@@ -687,7 +781,7 @@
         { questionText: "Is the smoke spreading to other rooms?", answerText: "It looks like it's getting darker and thicker by the window." },
         { questionText: "Do you hear a smoke alarm going off?", answerText: "Yes, I can hear it blaring from outside." }
       ],
-      correctVehicle: "fire",
+      correctVehicles: ["fire", "ems"],
       vehicleETAs: { police: 5, fire: 3, ems: 6 }
     },
     {
@@ -700,7 +794,7 @@
         { questionText: "Is he responsive to his name or touch?", answerText: "No, he's not responding at all." },
         { questionText: "Is he on any medication?", answerText: "Yes, blood pressure and heart medication." }
       ],
-      correctVehicle: "ems",
+      correctVehicles: ["ems"],
       vehicleETAs: { police: 6, fire: 5, ems: 4 }
     },
     {
@@ -713,7 +807,7 @@
         { questionText: "How long ago did this happen?", answerText: "Just a couple minutes ago, right before I called." },
         { questionText: "Was the bike locked or unattended?", answerText: "It was locked, but the cable was cut." }
       ],
-      correctVehicle: "police",
+      correctVehicles: ["police"],
       vehicleETAs: { police: 8, fire: 12, ems: 10 }
     },
     {
@@ -726,7 +820,7 @@
         { questionText: "Are there flammable items nearby, like gas cans?", answerText: "Yes, there's a propane tank stored in there." },
         { questionText: "Is the wind pushing the fire toward any homes?", answerText: "Yes, it's blowing right toward the house next door." }
       ],
-      correctVehicle: "fire",
+      correctVehicles: ["fire", "police"],
       vehicleETAs: { police: 6, fire: 4, ems: 8 }
     },
     {
@@ -739,10 +833,13 @@
         { questionText: "Can she move her fingers?", answerText: "She says it hurts too much to try." },
         { questionText: "Did she hit her head at all?", answerText: "No, she landed on her arm, not her head." }
       ],
-      correctVehicle: "ems",
+      correctVehicles: ["ems"],
       vehicleETAs: { police: 7, fire: 6, ems: 3 }
     }
   ];
+
+  // Duration (ms) each call's timer runs before an unmade dispatch auto-fails
+  var TIMER_DURATIONS_MS = { Low: 30000, Medium: 20000, High: 12000 };
 
   /* ======================================================
      STATE — single source of truth, lives in JS only
@@ -751,15 +848,20 @@
     currentCallIndex: 0,
     streak: 0,
     bestStreak: 0,
-    callsCorrect: 0,
+    callsPerfect: 0,
+    callsPartial: 0,
     callsWrong: 0,
     callsHandled: 0,
     questionsUsed: [],               // per-call, one bool per follow-up question, resets each call
-    callLocked: false,               // prevents double vehicle taps
+    selectedVehicles: [],            // per-call, vehicle keys currently toggled on
+    callLocked: false,               // prevents double vehicle taps / double dispatch
     typewriterTimer: null,
     typewriterDone: false,
-    lastOutcomeCorrect: false,
-    lastOutcomeVehicle: null
+    countdown: {                     // per-call countdown timer
+      totalMs: 0,
+      remainingMs: 0,
+      intervalId: null
+    }
   };
 
   /* ======================================================
@@ -785,7 +887,11 @@
     chooseVehicleBtn: document.getElementById("choose-vehicle-btn"),
     vehicleSection: document.getElementById("vehicle-section"),
     vehicleContainer: document.getElementById("vehicle-container"),
+    confirmDispatchBtn: document.getElementById("confirm-dispatch-btn"),
     dispatchingOverlay: document.getElementById("dispatching-overlay"),
+    timerWrap: document.getElementById("timer-wrap"),
+    timerLabel: document.getElementById("timer-label"),
+    timerBarFill: document.getElementById("timer-bar-fill"),
     callPanelGroup: [
       document.getElementById("call-panel")
     ],
@@ -795,7 +901,8 @@
     nextCallBtn: document.getElementById("next-call-btn"),
     outcomeScreen: document.getElementById("outcome-screen"),
     statHandled: document.getElementById("stat-handled"),
-    statCorrect: document.getElementById("stat-correct"),
+    statPerfect: document.getElementById("stat-perfect"),
+    statPartial: document.getElementById("stat-partial"),
     statWrong: document.getElementById("stat-wrong"),
     statStreak: document.getElementById("stat-streak"),
     backHomeBtn: document.getElementById("back-home-btn")
@@ -824,21 +931,27 @@
     state.currentCallIndex = 0;
     state.streak = 0;
     state.bestStreak = 0;
-    state.callsCorrect = 0;
+    state.callsPerfect = 0;
+    state.callsPartial = 0;
     state.callsWrong = 0;
     state.callsHandled = 0;
     state.questionsUsed = [];
+    state.selectedVehicles = [];
     state.callLocked = false;
     clearTypewriter();
     state.typewriterDone = false;
+    clearCountdownTimer();
   }
 
   function resetPerCallState(call) {
     // One "asked" flag per follow-up question, all false at call start
     state.questionsUsed = call.followUpQuestions.map(function () { return false; });
+    state.selectedVehicles = [];
     state.callLocked = false;
     clearTypewriter();
     state.typewriterDone = false;
+    clearCountdownTimer();
+    hideCountdownTimer();
   }
 
   function questionsAskedCount() {
@@ -850,6 +963,60 @@
       clearInterval(state.typewriterTimer);
       state.typewriterTimer = null;
     }
+  }
+
+  /* ======================================================
+     COUNTDOWN TIMER — starts once transcript finishes,
+     auto-fails the call ("Too Slow!") if it reaches 0.
+  ====================================================== */
+  function startCountdownTimer(call) {
+    var totalMs = TIMER_DURATIONS_MS[call.urgencyLevel];
+    state.countdown.totalMs = totalMs;
+    state.countdown.remainingMs = totalMs;
+
+    el.timerWrap.style.display = "block";
+    el.timerWrap.classList.remove("warning", "danger");
+    updateCountdownUI();
+
+    clearCountdownTimer();
+    state.countdown.intervalId = setInterval(function () {
+      state.countdown.remainingMs -= 100;
+      if (state.countdown.remainingMs <= 0) {
+        state.countdown.remainingMs = 0;
+        updateCountdownUI();
+        clearCountdownTimer();
+        handleTimeout();
+        return;
+      }
+      updateCountdownUI();
+    }, 100);
+  }
+
+  function updateCountdownUI() {
+    var total = state.countdown.totalMs;
+    var remaining = state.countdown.remainingMs;
+    var percent = total > 0 ? (remaining / total) * 100 : 0;
+    var secondsLeft = Math.ceil(remaining / 1000);
+
+    el.timerBarFill.style.width = percent + "%";
+    el.timerLabel.textContent = "⏱ " + secondsLeft + "s";
+
+    var danger = remaining <= 5000;
+    var warning = !danger && remaining <= total * 0.5;
+    el.timerWrap.classList.toggle("danger", danger);
+    el.timerWrap.classList.toggle("warning", warning);
+  }
+
+  function clearCountdownTimer() {
+    if (state.countdown.intervalId) {
+      clearInterval(state.countdown.intervalId);
+      state.countdown.intervalId = null;
+    }
+  }
+
+  function hideCountdownTimer() {
+    el.timerWrap.style.display = "none";
+    el.timerWrap.classList.remove("warning", "danger");
   }
 
   /* ======================================================
@@ -880,6 +1047,8 @@
     el.chooseVehicleBtn.style.display = "block";
     el.chooseVehicleBtn.classList.remove("unlocked", "just-unlocked");
     el.chooseVehicleBtn.disabled = true;
+    el.confirmDispatchBtn.classList.remove("visible");
+    el.confirmDispatchBtn.disabled = false;
 
     el.dispatchingOverlay.classList.remove("active");
     setShiftInteractive(true);
@@ -895,12 +1064,15 @@
 
     var i = 0;
     state.typewriterDone = false;
+    var call = CALLS[state.currentCallIndex];
 
     function finishNow() {
       clearTypewriter();
       span.textContent = text;
       state.typewriterDone = true;
       cursor.remove();
+      // Countdown pressure only begins once the caller has finished talking
+      startCountdownTimer(call);
     }
 
     state.typewriterTimer = setInterval(function () {
@@ -972,6 +1144,9 @@
     }
   }
 
+  // Vehicle buttons are multi-select toggles now — tapping one only
+  // adds/removes it from state.selectedVehicles. Nothing is locked in
+  // until "Confirm Dispatch" is tapped.
   function renderVehicleOptions(call) {
     el.vehicleContainer.innerHTML = "";
     ["police", "fire", "ems"].forEach(function (key) {
@@ -979,22 +1154,53 @@
       btn.className = "vehicle-btn vehicle-" + key;
       btn.type = "button";
 
+      var checkSpan = document.createElement("span");
+      checkSpan.className = "vehicle-check";
+      checkSpan.textContent = "☐";
+
       var nameSpan = document.createElement("span");
       nameSpan.textContent = VEHICLE_LABELS[key];
+
+      var labelWrap = document.createElement("span");
+      labelWrap.appendChild(checkSpan);
+      labelWrap.appendChild(nameSpan);
 
       var etaSpan = document.createElement("span");
       etaSpan.className = "eta-tag";
       etaSpan.textContent = call.vehicleETAs[key] + " min";
 
-      btn.appendChild(nameSpan);
+      btn.appendChild(labelWrap);
       btn.appendChild(etaSpan);
 
       btn.addEventListener("click", function () {
-        dispatchVehicle(key);
+        toggleVehicleSelection(key, btn, checkSpan);
       });
 
       el.vehicleContainer.appendChild(btn);
     });
+  }
+
+  function toggleVehicleSelection(key, btn, checkSpan) {
+    // Guard: selection can't change once dispatch is confirmed/locked
+    if (state.callLocked) return;
+
+    var idx = state.selectedVehicles.indexOf(key);
+    if (idx === -1) {
+      state.selectedVehicles.push(key);
+      btn.classList.add("selected");
+      checkSpan.textContent = "☑";
+    } else {
+      state.selectedVehicles.splice(idx, 1);
+      btn.classList.remove("selected");
+      checkSpan.textContent = "☐";
+    }
+
+    updateConfirmButtonVisibility();
+  }
+
+  function updateConfirmButtonVisibility() {
+    var hasSelection = state.selectedVehicles.length > 0;
+    el.confirmDispatchBtn.classList.toggle("visible", hasSelection);
   }
 
   function setShiftInteractive(enabled) {
@@ -1002,71 +1208,135 @@
   }
 
   /* ======================================================
-     EVENT HANDLING — VEHICLE DISPATCH
+     EVENT HANDLING — CONFIRM DISPATCH
   ====================================================== */
-  function dispatchVehicle(vehicleKey) {
-    // Guard: prevent double submission / rapid double-tap
+  function handleConfirmDispatch() {
+    // Guard: prevent double submission / rapid double-tap, and require
+    // at least one vehicle selected (button is hidden otherwise, but
+    // this covers any stale-DOM edge case)
     if (state.callLocked) return;
+    if (state.selectedVehicles.length === 0) return;
     state.callLocked = true;
 
-    // Disable all vehicle buttons immediately
+    // Selection is locked in — stop the clock and freeze the buttons
+    clearCountdownTimer();
     var vehicleButtons = el.vehicleContainer.querySelectorAll(".vehicle-btn");
     vehicleButtons.forEach(function (b) { b.disabled = true; });
     el.chooseVehicleBtn.disabled = true;
+    el.confirmDispatchBtn.disabled = true;
+    el.confirmDispatchBtn.classList.remove("visible");
 
     // Show "Dispatching..." loading state
     el.dispatchingOverlay.classList.add("active");
 
     var call = CALLS[state.currentCallIndex];
-    var isCorrect = vehicleKey === call.correctVehicle;
+    var selected = state.selectedVehicles.slice();
+    var tier = scoreDispatch(selected, call.correctVehicles);
 
     setTimeout(function () {
-      finalizeOutcome(call, vehicleKey, isCorrect);
+      finalizeOutcome(call, selected, tier, false);
     }, 1000);
   }
 
-  function finalizeOutcome(call, chosenVehicle, isCorrect) {
+  /* ======================================================
+     EVENT HANDLING — TIMEOUT ("Too Slow!")
+  ====================================================== */
+  function handleTimeout() {
+    // Guard: a stray tick firing after dispatch was already confirmed
+    if (state.callLocked) return;
+    state.callLocked = true;
+
+    clearCountdownTimer();
+
+    var call = CALLS[state.currentCallIndex];
+    // Whatever was selected (or not) doesn't matter — running out the
+    // clock always grades as WRONG, per spec.
+    finalizeOutcome(call, state.selectedVehicles.slice(), "WRONG", true);
+  }
+
+  /* ======================================================
+     SCORING — compare selected vehicles against correctVehicles
+  ====================================================== */
+  function scoreDispatch(selected, correctVehicles) {
+    var matched = selected.filter(function (v) { return correctVehicles.indexOf(v) !== -1; });
+    var missing = correctVehicles.filter(function (v) { return selected.indexOf(v) === -1; });
+    var extra = selected.filter(function (v) { return correctVehicles.indexOf(v) === -1; });
+
+    if (matched.length === 0) return "WRONG";
+    if (missing.length === 0 && extra.length === 0) return "PERFECT";
+    return "PARTIAL";
+  }
+
+  function finalizeOutcome(call, selected, tier, isTimeout) {
     state.callsHandled++;
 
-    if (isCorrect) {
-      state.callsCorrect++;
+    if (tier === "PERFECT") {
+      state.callsPerfect++;
       state.streak++;
       if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    } else if (tier === "PARTIAL") {
+      state.callsPartial++;
+      // streak neither increases nor resets on partial credit
     } else {
       state.callsWrong++;
       state.streak = 0;
     }
 
-    state.lastOutcomeCorrect = isCorrect;
-    state.lastOutcomeVehicle = chosenVehicle;
-
-    renderOutcome(call, isCorrect);
+    renderOutcome(call, selected, tier, isTimeout);
     showScreen("outcome");
   }
 
   /* ======================================================
      RENDERING — OUTCOME SCREEN
   ====================================================== */
-  function renderOutcome(call, isCorrect) {
+  function labelList(keys) {
+    return keys.map(function (k) { return VEHICLE_LABELS[k]; }).join(" and ");
+  }
+
+  function buildOutcomeMessage(call, tier, selected, isTimeout) {
+    if (isTimeout) {
+      return "You ran out of time before dispatching. This needed " + labelList(call.correctVehicles) + ".";
+    }
+    if (tier === "PERFECT") {
+      return "Help is on the way. Nice dispatching!";
+    }
+    if (tier === "WRONG") {
+      return "This needed " + labelList(call.correctVehicles) + " — take another look at the details next time.";
+    }
+
+    // PARTIAL — explain what was missing and/or unnecessary
+    var missing = call.correctVehicles.filter(function (v) { return selected.indexOf(v) === -1; });
+    var extra = selected.filter(function (v) { return call.correctVehicles.indexOf(v) === -1; });
+    var parts = [];
+    if (missing.length) parts.push("this also needed " + labelList(missing));
+    if (extra.length) parts.push(labelList(extra) + " wasn't necessary here");
+    return "Good call, but " + parts.join(", and ") + ".";
+  }
+
+  function renderOutcome(call, selected, tier, isTimeout) {
     // Clear any leftover confetti
     var oldConfetti = el.outcomeScreen.querySelectorAll(".confetti-piece");
     oldConfetti.forEach(function (c) { c.remove(); });
 
-    if (isCorrect) {
+    if (tier === "PERFECT") {
       el.outcomeIcon.textContent = "✅";
       el.outcomeIcon.className = "outcome-icon correct";
-      el.outcomeTitle.textContent = "Great Call!";
+      el.outcomeTitle.textContent = "Perfect Dispatch!";
       el.outcomeTitle.className = "outcome-title correct";
-      el.outcomeMessage.textContent = "Help is on the way. Nice dispatching!";
       spawnConfetti();
+    } else if (tier === "PARTIAL") {
+      el.outcomeIcon.textContent = "⚠️";
+      el.outcomeIcon.className = "outcome-icon partial";
+      el.outcomeTitle.textContent = "Partial Credit";
+      el.outcomeTitle.className = "outcome-title partial";
     } else {
-      el.outcomeIcon.textContent = "❌";
+      el.outcomeIcon.textContent = isTimeout ? "⏰" : "❌";
       el.outcomeIcon.className = "outcome-icon wrong";
-      el.outcomeTitle.textContent = "Wrong Call";
+      el.outcomeTitle.textContent = isTimeout ? "Too Slow!" : "Wrong Call";
       el.outcomeTitle.className = "outcome-title wrong";
-      el.outcomeMessage.textContent = "This needed " + VEHICLE_LABELS[call.correctVehicle] +
-        " — take another look at the details next time.";
     }
+
+    el.outcomeMessage.textContent = buildOutcomeMessage(call, tier, selected, isTimeout);
 
     // Force re-trigger animation on repeated outcomes
     el.outcomeIcon.style.animation = "none";
@@ -1157,6 +1427,7 @@
     setTimeout(function () { endShiftLocked = false; }, 350);
 
     clearTypewriter();
+    clearCountdownTimer();
     goToSummary();
   }
 
@@ -1165,7 +1436,8 @@
   ====================================================== */
   function goToSummary() {
     el.statHandled.textContent = state.callsHandled;
-    el.statCorrect.textContent = state.callsCorrect;
+    el.statPerfect.textContent = state.callsPerfect;
+    el.statPartial.textContent = state.callsPartial;
     el.statWrong.textContent = state.callsWrong;
     el.statStreak.textContent = state.bestStreak;
     showScreen("summary");
@@ -1187,6 +1459,7 @@
   el.startShiftBtn.addEventListener("click", handleStartShift);
   el.endShiftBtn.addEventListener("click", handleEndShift);
   el.chooseVehicleBtn.addEventListener("click", handleChooseVehicle);
+  el.confirmDispatchBtn.addEventListener("click", handleConfirmDispatch);
   el.nextCallBtn.addEventListener("click", handleNextCall);
   el.backHomeBtn.addEventListener("click", handleBackHome);
 
