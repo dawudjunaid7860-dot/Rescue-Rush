@@ -9,16 +9,22 @@
      ROOT / RESET
   ====================================================== */
   :root {
-    --red: #ff4d4d;
-    --red-dark: #e63946;
-    --blue: #3a86ff;
-    --blue-dark: #2667cc;
+    --red: #ff5c5c;
+    --red-dark: #ff4d4d;
+    --danger: #ef4444;
+    --blue: #4d9fff;
+    --blue-dark: #3a86ff;
     --yellow: #ffd60a;
     --orange: #ff9f1c;
-    --green: #2ec4b6;
+    --green: #22c55e;
+    --purple: #8b5cf6;
     --dark: #22223b;
     --grey: #cfd2da;
-    --bg: #eef1ff;
+    --bg: #121212;
+    --surface: #242424;
+    --surface-2: #2c2c2c;
+    --text: #f0f0f0;
+    --text-dim: #a5a5ab;
     --white: #ffffff;
     --font: "Trebuchet MS", "Comic Sans MS", "Baloo 2", sans-serif;
   }
@@ -31,7 +37,7 @@
     height: 100%;
     background: var(--bg);
     font-family: var(--font);
-    color: var(--dark);
+    color: var(--text);
     overscroll-behavior: none;
   }
 
@@ -42,7 +48,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #eef1ff 0%, #e4e9ff 100%);
+    background: linear-gradient(180deg, #121212 0%, #181818 100%);
     overflow-x: hidden;
   }
 
@@ -95,7 +101,7 @@
     font-size: 3rem;
     font-weight: 900;
     color: var(--red-dark);
-    text-shadow: 3px 3px 0 var(--yellow), 5px 5px 0 rgba(0,0,0,0.08);
+    text-shadow: 3px 3px 0 var(--yellow), 5px 5px 0 rgba(0,0,0,0.4);
     letter-spacing: 1px;
     margin: 0;
   }
@@ -108,36 +114,37 @@
   .tagline {
     font-size: 1.1rem;
     font-weight: bold;
-    color: var(--blue-dark);
+    color: var(--blue);
     margin: 6px 0 0 0;
   }
 
   .start-btn {
-    background: var(--red-dark);
+    background: var(--green);
     color: white;
     font-size: 1.4rem;
     font-weight: 900;
     padding: 18px 46px;
     border-radius: 50px;
-    box-shadow: 0 6px 0 #a4222c, 0 10px 20px rgba(230,57,70,0.35);
+    box-shadow: 0 6px 0 #15803d, 0 10px 20px rgba(34,197,94,0.4);
     min-height: 60px;
     animation: pulseGlow 1.8s ease-in-out infinite;
   }
 
   @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 6px 0 #a4222c, 0 10px 20px rgba(230,57,70,0.35); transform: scale(1); }
-    50% { box-shadow: 0 6px 0 #a4222c, 0 10px 34px rgba(230,57,70,0.6); transform: scale(1.04); }
+    0%, 100% { box-shadow: 0 6px 0 #15803d, 0 10px 20px rgba(34,197,94,0.4); transform: scale(1); }
+    50% { box-shadow: 0 6px 0 #15803d, 0 10px 34px rgba(34,197,94,0.7); transform: scale(1.04); }
   }
 
   .rank-placeholder {
     margin-top: 26px;
     font-size: 0.95rem;
     font-weight: bold;
-    color: var(--dark);
-    background: var(--white);
+    color: var(--text);
+    background: var(--surface);
     padding: 8px 18px;
     border-radius: 20px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
   }
 
   /* ======================================================
@@ -155,13 +162,14 @@
   }
 
   .end-shift-btn {
-    background: var(--grey);
-    color: #555;
+    background: var(--danger);
+    color: white;
     font-size: 0.85rem;
     font-weight: bold;
     padding: 10px 14px;
     border-radius: 30px;
     min-height: 40px;
+    box-shadow: 0 3px 0 #b91c1c;
   }
 
   .top-right-info {
@@ -174,33 +182,35 @@
   .call-counter {
     font-weight: bold;
     font-size: 0.95rem;
-    background: var(--white);
+    color: var(--text);
+    background: var(--surface);
     padding: 6px 12px;
     border-radius: 14px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.35);
   }
 
   .streak-indicator {
     font-weight: bold;
     font-size: 0.85rem;
     color: var(--orange);
-    background: #fff3e0;
+    background: rgba(255,159,28,0.15);
     padding: 4px 10px;
     border-radius: 12px;
   }
 
   .call-panel {
-    background: var(--white);
+    background: var(--surface);
     border-radius: 22px;
     padding: 18px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.06);
     margin-bottom: 16px;
   }
 
   .caller-label {
     font-weight: 900;
     font-size: 1.05rem;
-    color: var(--blue-dark);
+    color: var(--blue);
     margin-bottom: 8px;
   }
 
@@ -209,12 +219,13 @@
     font-size: 1.05rem;
     line-height: 1.4;
     margin-bottom: 12px;
+    color: var(--text);
   }
 
   .transcript-box .cursor {
     display: inline-block;
     width: 2px;
-    background: var(--dark);
+    background: var(--text);
     margin-left: 2px;
     animation: blink 0.8s step-start infinite;
   }
@@ -234,12 +245,12 @@
     letter-spacing: 0.5px;
   }
 
-  .urgency-low { background: var(--yellow); color: #6b5900; }
+  .urgency-low { background: var(--yellow); color: #3a2f00; }
   .urgency-medium { background: var(--orange); }
   .urgency-high { background: var(--red-dark); animation: pulseHigh 1s ease-in-out infinite; }
 
   @keyframes pulseHigh {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(230,57,70,0.6); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,77,77,0.6); }
     50% { box-shadow: 0 0 0 10px rgba(230,57,70,0); }
   }
 
@@ -250,9 +261,21 @@
   .section-label {
     font-weight: bold;
     font-size: 0.85rem;
-    color: #777;
+    color: var(--text-dim);
     margin-bottom: 8px;
     text-transform: uppercase;
+  }
+
+  .questions-progress {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    transition: color 200ms ease;
+  }
+
+  .questions-progress.complete {
+    color: var(--green);
   }
 
   .followup-btn {
@@ -261,8 +284,8 @@
     background: var(--blue);
     color: white;
     font-weight: bold;
-    font-size: 0.95rem;
-    padding: 14px 16px;
+    font-size: 0.92rem;
+    padding: 12px 14px;
     border-radius: 16px;
     margin-bottom: 8px;
     min-height: 48px;
@@ -270,13 +293,14 @@
   }
 
   .followup-btn:disabled {
-    background: var(--grey);
-    color: #888;
+    background: var(--surface-2);
+    color: #777;
   }
 
   .followup-answer {
-    background: #f0f4ff;
+    background: #1c2534;
     border-left: 4px solid var(--blue);
+    color: var(--text);
     padding: 10px 14px;
     border-radius: 10px;
     margin: -4px 0 10px 0;
@@ -295,17 +319,42 @@
   .choose-vehicle-btn {
     display: block;
     width: 100%;
-    background: var(--dark);
-    color: white;
+    background: var(--surface-2);
+    color: var(--text-dim);
     font-weight: 900;
     font-size: 1rem;
     padding: 16px;
     border-radius: 18px;
     min-height: 52px;
+    transition: background 300ms ease, color 300ms ease;
+  }
+
+  .choose-vehicle-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .choose-vehicle-btn.unlocked {
+    background: linear-gradient(135deg, var(--purple), #6d5ef8);
+    color: white;
+  }
+
+  .choose-vehicle-btn.just-unlocked {
+    animation: unlockPulse 650ms ease;
+  }
+
+  @keyframes unlockPulse {
+    0% { transform: scale(0.96); box-shadow: 0 0 0 0 rgba(139,92,246,0.7); }
+    60% { transform: scale(1.03); }
+    100% { transform: scale(1); box-shadow: 0 0 0 16px rgba(139,92,246,0); }
   }
 
   .vehicle-section {
     margin-top: 4px;
+  }
+
+  .vehicle-section.reveal {
+    animation: fadeSlideIn 300ms ease forwards;
   }
 
   .vehicle-btn {
@@ -354,7 +403,7 @@
   .dispatching-text {
     font-size: 1.3rem;
     font-weight: 900;
-    color: var(--dark);
+    color: var(--text);
   }
 
   .dots span {
@@ -424,7 +473,7 @@
 
   .outcome-message {
     font-size: 1rem;
-    color: #444;
+    color: var(--text-dim);
     margin: 6px 0 30px 0;
     max-width: 320px;
   }
@@ -469,7 +518,7 @@
   .summary-title {
     font-size: 1.8rem;
     font-weight: 900;
-    color: var(--dark);
+    color: var(--text);
     margin-bottom: 20px;
   }
 
@@ -482,14 +531,16 @@
   }
 
   .stat-card {
-    background: var(--white);
+    background: var(--surface);
     border-radius: 18px;
     padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.06);
     font-weight: bold;
+    color: var(--text);
   }
 
   .stat-card .stat-value {
@@ -549,10 +600,11 @@
 
     <div class="followup-section">
       <div class="section-label">Ask Follow-Up Questions</div>
+      <div class="questions-progress" id="questions-progress">Questions Asked: 0/4</div>
       <div id="followup-container"></div>
     </div>
 
-    <button class="choose-vehicle-btn" id="choose-vehicle-btn">Choose Vehicle</button>
+    <button class="choose-vehicle-btn" id="choose-vehicle-btn" disabled>Choose Vehicle</button>
 
     <div class="vehicle-section" id="vehicle-section" style="display:none;">
       <div class="section-label">Dispatch a Vehicle</div>
@@ -618,7 +670,9 @@
       urgencyLevel: "High",
       followUpQuestions: [
         { questionText: "Is the intruder armed?", answerText: "I'm not sure, I didn't see a weapon but I'm scared." },
-        { questionText: "Are you safe right now?", answerText: "Yes, I'm locked in the bathroom upstairs." }
+        { questionText: "Are you safe right now?", answerText: "Yes, I'm locked in the bathroom upstairs." },
+        { questionText: "Is the intruder still inside?", answerText: "I heard footsteps a minute ago, so I think so." },
+        { questionText: "Is anyone else in the house with you?", answerText: "No, I'm home alone right now." }
       ],
       correctVehicle: "police",
       vehicleETAs: { police: 4, fire: 9, ems: 7 }
@@ -629,7 +683,9 @@
       urgencyLevel: "High",
       followUpQuestions: [
         { questionText: "Do you see flames?", answerText: "Not yet, just thick grey smoke." },
-        { questionText: "Is anyone inside the house?", answerText: "I think the family is still home, I saw lights on." }
+        { questionText: "Is anyone inside the house?", answerText: "I think the family is still home, I saw lights on." },
+        { questionText: "Is the smoke spreading to other rooms?", answerText: "It looks like it's getting darker and thicker by the window." },
+        { questionText: "Do you hear a smoke alarm going off?", answerText: "Yes, I can hear it blaring from outside." }
       ],
       correctVehicle: "fire",
       vehicleETAs: { police: 5, fire: 3, ems: 6 }
@@ -640,7 +696,9 @@
       urgencyLevel: "High",
       followUpQuestions: [
         { questionText: "Is he breathing?", answerText: "It looks shallow, kind of gasping." },
-        { questionText: "Does he have any medical conditions?", answerText: "Yes, he has a heart condition." }
+        { questionText: "Does he have any medical conditions?", answerText: "Yes, he has a heart condition." },
+        { questionText: "Is he responsive to his name or touch?", answerText: "No, he's not responding at all." },
+        { questionText: "Is he on any medication?", answerText: "Yes, blood pressure and heart medication." }
       ],
       correctVehicle: "ems",
       vehicleETAs: { police: 6, fire: 5, ems: 4 }
@@ -651,7 +709,9 @@
       urgencyLevel: "Low",
       followUpQuestions: [
         { questionText: "Can you describe the person?", answerText: "Wearing a red hoodie and black cap, teenager maybe." },
-        { questionText: "Which direction did they go?", answerText: "East, toward the park entrance on Maple Street." }
+        { questionText: "Which direction did they go?", answerText: "East, toward the park entrance on Maple Street." },
+        { questionText: "How long ago did this happen?", answerText: "Just a couple minutes ago, right before I called." },
+        { questionText: "Was the bike locked or unattended?", answerText: "It was locked, but the cable was cut." }
       ],
       correctVehicle: "police",
       vehicleETAs: { police: 8, fire: 12, ems: 10 }
@@ -662,7 +722,9 @@
       urgencyLevel: "Medium",
       followUpQuestions: [
         { questionText: "Is anyone near the fire?", answerText: "No, everyone's clear, but it's close to another house." },
-        { questionText: "How big is the fire right now?", answerText: "It's covering most of the garage roof already." }
+        { questionText: "How big is the fire right now?", answerText: "It's covering most of the garage roof already." },
+        { questionText: "Are there flammable items nearby, like gas cans?", answerText: "Yes, there's a propane tank stored in there." },
+        { questionText: "Is the wind pushing the fire toward any homes?", answerText: "Yes, it's blowing right toward the house next door." }
       ],
       correctVehicle: "fire",
       vehicleETAs: { police: 6, fire: 4, ems: 8 }
@@ -673,7 +735,9 @@
       urgencyLevel: "Medium",
       followUpQuestions: [
         { questionText: "Is she conscious and alert?", answerText: "Yes, she's crying but talking to me fine." },
-        { questionText: "Is there any bleeding?", answerText: "No bleeding, just the swelling and she won't move it." }
+        { questionText: "Is there any bleeding?", answerText: "No bleeding, just the swelling and she won't move it." },
+        { questionText: "Can she move her fingers?", answerText: "She says it hurts too much to try." },
+        { questionText: "Did she hit her head at all?", answerText: "No, she landed on her arm, not her head." }
       ],
       correctVehicle: "ems",
       vehicleETAs: { police: 7, fire: 6, ems: 3 }
@@ -690,7 +754,7 @@
     callsCorrect: 0,
     callsWrong: 0,
     callsHandled: 0,
-    questionsUsed: [false, false],   // per-call, resets each call
+    questionsUsed: [],               // per-call, one bool per follow-up question, resets each call
     callLocked: false,               // prevents double vehicle taps
     typewriterTimer: null,
     typewriterDone: false,
@@ -717,6 +781,7 @@
     transcriptBox: document.getElementById("transcript-box"),
     urgencyBadge: document.getElementById("urgency-badge"),
     followupContainer: document.getElementById("followup-container"),
+    questionsProgress: document.getElementById("questions-progress"),
     chooseVehicleBtn: document.getElementById("choose-vehicle-btn"),
     vehicleSection: document.getElementById("vehicle-section"),
     vehicleContainer: document.getElementById("vehicle-container"),
@@ -762,17 +827,22 @@
     state.callsCorrect = 0;
     state.callsWrong = 0;
     state.callsHandled = 0;
-    state.questionsUsed = [false, false];
+    state.questionsUsed = [];
     state.callLocked = false;
     clearTypewriter();
     state.typewriterDone = false;
   }
 
-  function resetPerCallState() {
-    state.questionsUsed = [false, false];
+  function resetPerCallState(call) {
+    // One "asked" flag per follow-up question, all false at call start
+    state.questionsUsed = call.followUpQuestions.map(function () { return false; });
     state.callLocked = false;
     clearTypewriter();
     state.typewriterDone = false;
+  }
+
+  function questionsAskedCount() {
+    return state.questionsUsed.filter(Boolean).length;
   }
 
   function clearTypewriter() {
@@ -786,8 +856,8 @@
      RENDERING — CALL SCREEN
   ====================================================== */
   function renderCall() {
-    resetPerCallState();
     var call = CALLS[state.currentCallIndex];
+    resetPerCallState(call);
 
     el.callCounter.textContent = "Call " + (state.currentCallIndex + 1) + " of " + CALLS.length;
     el.streakIndicator.textContent = "🔥 Streak: " + state.streak;
@@ -800,13 +870,16 @@
     // Typewriter transcript
     renderTypewriter(call.transcript);
 
-    // Follow-up questions
+    // Follow-up questions — all 4 must be asked before dispatch unlocks
     renderFollowUps(call);
+    updateQuestionsProgress(call, false);
 
     // Vehicle section hidden until "Choose Vehicle" tapped
+    el.vehicleSection.classList.remove("reveal");
     el.vehicleSection.style.display = "none";
     el.chooseVehicleBtn.style.display = "block";
-    el.chooseVehicleBtn.disabled = false;
+    el.chooseVehicleBtn.classList.remove("unlocked", "just-unlocked");
+    el.chooseVehicleBtn.disabled = true;
 
     el.dispatchingOverlay.classList.remove("active");
     setShiftInteractive(true);
@@ -869,12 +942,34 @@
         requestAnimationFrame(function () {
           answerDiv.classList.add("revealed");
         });
+        updateQuestionsProgress(call, true);
       });
 
       wrapper.appendChild(btn);
       wrapper.appendChild(answerDiv);
       el.followupContainer.appendChild(wrapper);
     });
+  }
+
+  // Updates the "Questions Asked: X/4" indicator and unlocks vehicle
+  // dispatch once every follow-up question has been asked.
+  function updateQuestionsProgress(call, animateUnlock) {
+    var total = call.followUpQuestions.length;
+    var asked = questionsAskedCount();
+    var allAsked = asked >= total;
+
+    el.questionsProgress.textContent = "Questions Asked: " + asked + "/" + total;
+    el.questionsProgress.classList.toggle("complete", allAsked);
+
+    var wasDisabled = el.chooseVehicleBtn.disabled;
+    el.chooseVehicleBtn.disabled = !allAsked;
+    el.chooseVehicleBtn.classList.toggle("unlocked", allAsked);
+
+    if (allAsked && wasDisabled && animateUnlock) {
+      el.chooseVehicleBtn.classList.remove("just-unlocked");
+      void el.chooseVehicleBtn.offsetWidth;
+      el.chooseVehicleBtn.classList.add("just-unlocked");
+    }
   }
 
   function renderVehicleOptions(call) {
@@ -1030,8 +1125,14 @@
     setTimeout(function () { chooseVehicleLocked = false; }, 350);
 
     var call = CALLS[state.currentCallIndex];
+
+    // Defense in depth: block dispatch until all follow-up questions are asked,
+    // even if this somehow fires while the button's disabled attribute is stale.
+    if (questionsAskedCount() < call.followUpQuestions.length) return;
+
     renderVehicleOptions(call);
     el.vehicleSection.style.display = "block";
+    el.vehicleSection.classList.add("reveal");
     el.chooseVehicleBtn.style.display = "none";
   }
 
