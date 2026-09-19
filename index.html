@@ -147,6 +147,133 @@
     border: 1px solid rgba(255,255,255,0.06);
   }
 
+  .money-display {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #ffd60a;
+    background: rgba(255,214,10,0.12);
+    padding: 8px 18px;
+    border-radius: 20px;
+    border: 1px solid rgba(255,214,10,0.25);
+  }
+
+  .upgrade-btn {
+    background: linear-gradient(135deg, var(--purple), #6d5ef8);
+    color: white;
+    font-size: 1rem;
+    font-weight: 900;
+    padding: 12px 32px;
+    border-radius: 40px;
+    min-height: 48px;
+    box-shadow: 0 4px 0 #5b3fc9;
+  }
+
+  /* ======================================================
+     RANK / UPGRADE SCREEN
+  ====================================================== */
+  #rank-screen {
+    padding: 20px;
+  }
+
+  .rank-screen-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .rank-screen-title {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--text);
+    text-align: center;
+    margin: 0 0 18px 0;
+  }
+
+  .rank-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .rank-row {
+    background: var(--surface);
+    border-radius: 18px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    border: 2px solid rgba(255,255,255,0.06);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .rank-row.current {
+    border-color: #ffd60a;
+    box-shadow: 0 0 0 3px rgba(255,214,10,0.2), 0 4px 10px rgba(0,0,0,0.35);
+  }
+
+  .rank-row-main { min-width: 0; }
+
+  .rank-row-name {
+    font-weight: 900;
+    font-size: 1rem;
+    color: var(--text);
+  }
+
+  .rank-row-status {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .rank-row.current .rank-row-status {
+    color: #ffd60a;
+  }
+
+  .rank-up-btn {
+    background: var(--green);
+    color: white;
+    font-weight: 900;
+    font-size: 0.85rem;
+    padding: 10px 16px;
+    border-radius: 14px;
+    min-height: 44px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .rank-up-btn:disabled {
+    background: var(--surface-2);
+    color: #777;
+  }
+
+  .rank-row.just-ranked-up {
+    animation: rankPop 600ms ease;
+  }
+
+  @keyframes rankPop {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(255,214,10,0.35), 0 4px 10px rgba(0,0,0,0.35); }
+    100% { transform: scale(1); }
+  }
+
+  .rank-back-btn {
+    display: block;
+    width: 100%;
+    background: var(--surface-2);
+    color: var(--text);
+    font-weight: 900;
+    font-size: 1rem;
+    padding: 16px;
+    border-radius: 18px;
+    min-height: 52px;
+  }
+
   /* ======================================================
      SHIFT / CALL SCREEN
   ====================================================== */
@@ -529,6 +656,9 @@
   .vehicle-police { background: var(--blue-dark); }
   .vehicle-fire { background: var(--red-dark); }
   .vehicle-ems { background: #f4a90c; }
+  .vehicle-swat { background: #4b5563; }
+  .vehicle-fbi { background: #1e3a5f; }
+  .vehicle-army { background: #556b2f; }
 
   .vehicle-check {
     margin-right: 8px;
@@ -746,6 +876,88 @@
     min-height: 54px;
     box-shadow: 0 5px 0 #a4222c;
   }
+
+  /* ------- Paycheck breakdown ------- */
+  .paycheck-title {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--text);
+    margin: 6px 0 10px 0;
+    text-align: center;
+  }
+
+  .paycheck-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .paycheck-row {
+    background: var(--surface);
+    border-radius: 14px;
+    padding: 10px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .paycheck-row .paycheck-amount.tier-PERFECT { color: var(--green); }
+  .paycheck-row .paycheck-amount.tier-PARTIAL { color: var(--orange); }
+  .paycheck-row .paycheck-amount.tier-WRONG { color: var(--red-dark); }
+
+  .paycheck-total-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: var(--text);
+    border-top: 2px dashed rgba(255,255,255,0.15);
+    margin-bottom: 22px;
+  }
+
+  .paycheck-total-row .paycheck-amount {
+    color: #ffd60a;
+  }
+
+  .collect-money-btn {
+    position: relative;
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #ffd60a, #f4a90c);
+    color: #3a2f00;
+    font-weight: 900;
+    font-size: 1.15rem;
+    padding: 18px;
+    border-radius: 40px;
+    min-height: 58px;
+    margin-bottom: 14px;
+    box-shadow: 0 5px 0 #b8860b;
+    overflow: visible;
+  }
+
+  .collect-money-btn.collected {
+    background: var(--surface-2);
+    color: var(--text-dim);
+    box-shadow: 0 5px 0 #1a1a1a;
+  }
+
+  .money-burst-piece {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 1.3rem;
+    pointer-events: none;
+    animation: confettiBurst 900ms ease-out forwards;
+  }
 </style>
 </head>
 <body>
@@ -761,7 +973,21 @@
       <p class="tagline">Answer the call. Save the day!</p>
     </div>
     <button class="start-btn" id="start-shift-btn">Start Shift</button>
-    <div class="rank-placeholder">Rank: 911 Dispatcher</div>
+    <button class="upgrade-btn" id="upgrade-btn">⭐ Upgrade</button>
+    <div class="money-display" id="home-money-display">💰 $0</div>
+    <div class="rank-placeholder" id="home-rank-display">Rank: 911 Dispatcher</div>
+  </div>
+
+  <!-- ======================================================
+       SCREEN: RANK / UPGRADE
+  ====================================================== -->
+  <div id="rank-screen" class="screen">
+    <div class="rank-screen-header">
+      <div class="money-display" id="rank-money-display">💰 $0</div>
+    </div>
+    <h2 class="rank-screen-title">Upgrade Rank</h2>
+    <div class="rank-list" id="rank-list"></div>
+    <button class="rank-back-btn" id="rank-back-btn">Back to Home</button>
   </div>
 
   <!-- ======================================================
@@ -773,6 +999,7 @@
       <div class="top-right-info">
         <div class="call-counter" id="call-counter">Call 1 of 6</div>
         <div class="streak-indicator" id="streak-indicator">🔥 Streak: 0</div>
+        <div class="money-display" id="shift-money-display" style="padding:4px 10px; font-size:0.8rem;">💰 $0</div>
       </div>
     </div>
 
@@ -850,6 +1077,15 @@
         <span class="stat-value" id="stat-streak">0</span>
       </div>
     </div>
+
+    <div class="paycheck-title">💵 Paycheck</div>
+    <div class="paycheck-list" id="paycheck-list"></div>
+    <div class="paycheck-total-row">
+      <span>Total Earned</span>
+      <span class="paycheck-amount" id="paycheck-total">$0</span>
+    </div>
+
+    <button class="collect-money-btn" id="collect-money-btn" type="button">💰 Collect Money</button>
     <button class="back-home-btn" id="back-home-btn">Back to Home</button>
   </div>
 
@@ -877,9 +1113,15 @@
 
   /* ======================================================
      DATA — hardcoded calls
-     Field names must stay consistent for Phase 2 growth.
+     ------------------------------------------------------
+     CALL_POOL holds every call the game knows about (9, across all
+     ranks). A shift only ever plays 6 of them — buildShiftCallQueue()
+     (see RANK / PROGRESSION DATA below) filters out any call whose
+     correctVehicles need a vehicle type the player hasn't unlocked
+     yet, then fills the 6 slots from what's left.
+     Field names must stay consistent for future phases.
   ====================================================== */
-  var CALLS = [
+  var CALL_POOL = [
     {
       id: 1,
       transcript: "Help! Someone broke into my house and I think they're still inside!",
@@ -895,7 +1137,7 @@
         eventText: "Wait — I hear something moving downstairs now!"
       },
       correctVehicles: ["police"],
-      vehicleETAs: { police: 4, fire: 9, ems: 7 }
+      vehicleETAs: { police: 4, fire: 9, ems: 7, swat: 6, fbi: 12, army: 25 }
     },
     {
       id: 2,
@@ -908,7 +1150,7 @@
         { questionText: "Do you hear a smoke alarm going off?", answerText: "Yes, I can hear it blaring from outside." }
       ],
       correctVehicles: ["fire", "ems"],
-      vehicleETAs: { police: 5, fire: 3, ems: 6 }
+      vehicleETAs: { police: 5, fire: 3, ems: 6, swat: 10, fbi: 16, army: 28 }
     },
     {
       id: 3,
@@ -925,7 +1167,7 @@
         eventText: "Wait — he just stopped breathing completely!"
       },
       correctVehicles: ["ems"],
-      vehicleETAs: { police: 6, fire: 5, ems: 4 }
+      vehicleETAs: { police: 6, fire: 5, ems: 4, swat: 9, fbi: 14, army: 26 }
     },
     {
       id: 4,
@@ -938,7 +1180,7 @@
         { questionText: "Was the bike locked or unattended?", answerText: "It was locked, but the cable was cut." }
       ],
       correctVehicles: ["police"],
-      vehicleETAs: { police: 8, fire: 12, ems: 10 }
+      vehicleETAs: { police: 8, fire: 12, ems: 10, swat: 11, fbi: 18, army: 30 }
     },
     {
       id: 5,
@@ -956,7 +1198,7 @@
         newUrgency: "High"
       },
       correctVehicles: ["fire", "police"],
-      vehicleETAs: { police: 6, fire: 4, ems: 8 }
+      vehicleETAs: { police: 6, fire: 4, ems: 8, swat: 9, fbi: 15, army: 27 }
     },
     {
       id: 6,
@@ -969,9 +1211,130 @@
         { questionText: "Did she hit her head at all?", answerText: "No, she landed on her arm, not her head." }
       ],
       correctVehicles: ["ems"],
-      vehicleETAs: { police: 7, fire: 6, ems: 3 }
+      vehicleETAs: { police: 7, fire: 6, ems: 3, swat: 10, fbi: 17, army: 29 }
+    },
+    {
+      id: 7,
+      transcript: "There's a man barricaded in his house waving a gun at anyone who gets close!",
+      urgencyLevel: "High",
+      followUpQuestions: [
+        { questionText: "Has he fired any shots?", answerText: "Not yet, but he's pointed it at a couple of neighbors." },
+        { questionText: "Is anyone trapped inside with him?", answerText: "I think his wife might still be in there, I'm not sure." },
+        { questionText: "Does he have a history of violence?", answerText: "The neighbors say he's had outbursts before." },
+        { questionText: "Is the area evacuated?", answerText: "Some houses nearby, but not all of them yet." }
+      ],
+      correctVehicles: ["swat"],
+      vehicleETAs: { police: 5, fire: 10, ems: 8, swat: 4, fbi: 15, army: 20 }
+    },
+    {
+      id: 8,
+      transcript: "Multiple armed men just robbed the downtown bank and took two hostages in a getaway van!",
+      urgencyLevel: "High",
+      followUpQuestions: [
+        { questionText: "How many suspects are there?", answerText: "I counted at least four, all armed." },
+        { questionText: "Do you know which direction the van went?", answerText: "They headed north on the highway, fast." },
+        { questionText: "Are the hostages hurt?", answerText: "I don't think so, but they looked terrified." },
+        { questionText: "Did you get a look at the van?", answerText: "Dark green cargo van, no plates that I could see." }
+      ],
+      correctVehicles: ["fbi", "police"],
+      vehicleETAs: { police: 6, fire: 14, ems: 9, swat: 8, fbi: 5, army: 22 }
+    },
+    {
+      id: 9,
+      transcript: "A massive gas explosion just leveled part of the factory district, there could be dozens of people trapped!",
+      urgencyLevel: "High",
+      followUpQuestions: [
+        { questionText: "How many buildings are affected?", answerText: "At least three, maybe more, it's hard to tell from here." },
+        { questionText: "Is there a fire spreading?", answerText: "Yes, parts of it are still burning." },
+        { questionText: "Are people trapped in the rubble?", answerText: "Yes, I can hear people calling for help." },
+        { questionText: "Is the area safe to approach?", answerText: "There's still smoke and debris falling, it's dangerous." }
+      ],
+      correctVehicles: ["army", "fire", "ems"],
+      vehicleETAs: { police: 8, fire: 6, ems: 7, swat: 12, fbi: 18, army: 9 }
     }
   ];
+
+  /* ======================================================
+     RANK / VEHICLE-UNLOCK / MONEY DATA
+     ------------------------------------------------------
+     Kept separate from CALL_POOL on purpose: ranks decide what a
+     player can afford and which vehicle types exist yet, calls just
+     describe scenarios. A later phase can extend RANKS or
+     VEHICLE_TYPES without ever touching call data, and vice versa.
+  ====================================================== */
+  var RANKS = [
+    { name: "911 Dispatcher", cost: 0 },
+    { name: "Police Dispatch", cost: 300 },
+    { name: "SWAT Command", cost: 800 },
+    { name: "FBI Division", cost: 1800 },
+    { name: "Army Command", cost: 3500 }
+  ];
+
+  // rankIndex: the RANKS index a player must have reached for this
+  // vehicle to be offered at all. The base three are always available.
+  var VEHICLE_TYPES = {
+    police: { label: "🚓 Police", rankIndex: 0 },
+    fire: { label: "🚒 Fire", rankIndex: 0 },
+    ems: { label: "🚑 EMS", rankIndex: 0 },
+    swat: { label: "🛡️ SWAT", rankIndex: 2 },
+    fbi: { label: "🕵️ FBI", rankIndex: 3 },
+    army: { label: "🎖️ Army", rankIndex: 4 }
+  };
+
+  // Paycheck payout per outcome tier. Held/declined/timed-out calls all
+  // resolve as WRONG, which pays $0.
+  var TIER_PAYOUT = { PERFECT: 100, PARTIAL: 40, WRONG: 0 };
+
+  // Persistent across shifts within this page load (resets only on a
+  // hard reload — real persistence is a later phase). Deliberately
+  // separate from `state`, which is reset every shift.
+  var player = {
+    money: 0,
+    rankIndex: 0
+  };
+
+  function isVehicleUnlocked(key) {
+    return player.rankIndex >= VEHICLE_TYPES[key].rankIndex;
+  }
+
+  function getUnlockedVehicleKeys() {
+    return Object.keys(VEHICLE_TYPES).filter(isVehicleUnlocked);
+  }
+
+  function isCallEligibleForRank(call) {
+    return call.correctVehicles.every(isVehicleUnlocked);
+  }
+
+  function shuffleArray(arr) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i];
+      arr[i] = arr[j];
+      arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  // Builds this shift's 6-call lineup from CALL_POOL. Every call whose
+  // correctVehicles are all currently unlocked is "eligible"; the pool's
+  // 6 base calls (police/fire/ems only) always qualify, so a shift can
+  // never come up short. Any higher-rank call the player has unlocked
+  // is always included (so reaching a new rank reliably shows it off
+  // next shift); the remaining slots are filled with a random subset of
+  // the base calls, and the final order is shuffled.
+  function buildShiftCallQueue() {
+    var eligible = CALL_POOL.filter(isCallEligibleForRank);
+    var special = eligible.filter(function (c) {
+      return c.correctVehicles.some(function (v) { return VEHICLE_TYPES[v].rankIndex > 0; });
+    });
+    var base = eligible.filter(function (c) { return special.indexOf(c) === -1; });
+
+    var queue = special.slice();
+    var remaining = 6 - queue.length;
+    queue = queue.concat(shuffleArray(base.slice()).slice(0, Math.max(0, remaining)));
+
+    return shuffleArray(queue.slice(0, 6));
+  }
 
   // Duration (ms) each call's timer runs before an unmade dispatch auto-fails
   var TIMER_DURATIONS_MS = { Low: 30000, Medium: 20000, High: 12000 };
@@ -1000,16 +1363,20 @@
      same object, nothing is recomputed or lost.
   ====================================================== */
   var state = {
-    currentCallIndex: 0,   // the shift's primary call pointer (never the interrupting call)
-    activeCall: null,      // call state object currently on screen
-    heldCall: null,        // one paused call state object, or null
-    consumedIndices: {},   // callIndex -> true once fully resolved (played or auto-declined)
+    shiftCalls: [],         // this shift's 6-call lineup, built fresh at Start Shift
+    currentCallIndex: 0,    // the shift's primary call pointer (never the interrupting call)
+    activeCall: null,       // call state object currently on screen
+    heldCall: null,         // one paused call state object, or null
+    consumedIndices: {},    // callIndex -> true once fully resolved (played or auto-declined)
     streak: 0,
     bestStreak: 0,
     callsPerfect: 0,
     callsPartial: 0,
     callsWrong: 0,
     callsHandled: 0,
+    shiftEarnings: 0,        // this shift's total paycheck — separate from player.money until collected
+    paycheckEntries: [],     // { callNumber, tier, amount } per resolved call, for the paycheck list
+    paycheckCollected: false,
     typewriterTimer: null,
     typewriterDone: false,
     overlapPendingAfterCurveball: false,  // overlap banner deferred until a curveball flash finishes
@@ -1017,7 +1384,7 @@
   };
 
   function createCallState(callIndex) {
-    var call = CALLS[callIndex];
+    var call = state.shiftCalls[callIndex];
     return {
       callIndex: callIndex,
       questionsUsed: call.followUpQuestions.map(function () { return false; }),
@@ -1042,11 +1409,22 @@
     home: document.getElementById("home-screen"),
     shift: document.getElementById("shift-screen"),
     outcome: document.getElementById("outcome-screen"),
-    summary: document.getElementById("summary-screen")
+    summary: document.getElementById("summary-screen"),
+    rank: document.getElementById("rank-screen")
   };
 
   var el = {
     startShiftBtn: document.getElementById("start-shift-btn"),
+    upgradeBtn: document.getElementById("upgrade-btn"),
+    homeMoneyDisplay: document.getElementById("home-money-display"),
+    homeRankDisplay: document.getElementById("home-rank-display"),
+    shiftMoneyDisplay: document.getElementById("shift-money-display"),
+    rankMoneyDisplay: document.getElementById("rank-money-display"),
+    rankList: document.getElementById("rank-list"),
+    rankBackBtn: document.getElementById("rank-back-btn"),
+    paycheckList: document.getElementById("paycheck-list"),
+    paycheckTotal: document.getElementById("paycheck-total"),
+    collectMoneyBtn: document.getElementById("collect-money-btn"),
     endShiftBtn: document.getElementById("end-shift-btn"),
     callCounter: document.getElementById("call-counter"),
     streakIndicator: document.getElementById("streak-indicator"),
@@ -1082,12 +1460,6 @@
     backHomeBtn: document.getElementById("back-home-btn")
   };
 
-  var VEHICLE_LABELS = {
-    police: "🚓 Police",
-    fire: "🚒 Fire",
-    ems: "🚑 EMS"
-  };
-
   /* ======================================================
      SCREEN NAVIGATION
   ====================================================== */
@@ -1116,6 +1488,9 @@
     if (state.activeCall) stopCountdownInterval(state.activeCall);
     if (state.heldCall) stopCountdownInterval(state.heldCall);
 
+    // Note: player.money and player.rankIndex are NOT touched here —
+    // they persist across shifts (this-session-only, no reload survival).
+    state.shiftCalls = [];
     state.currentCallIndex = 0;
     state.activeCall = null;
     state.heldCall = null;
@@ -1126,6 +1501,9 @@
     state.callsPartial = 0;
     state.callsWrong = 0;
     state.callsHandled = 0;
+    state.shiftEarnings = 0;
+    state.paycheckEntries = [];
+    state.paycheckCollected = false;
     state.overlapPendingAfterCurveball = false;
     state.bannerLocked = false;
 
@@ -1145,7 +1523,7 @@
      call state is currently state.activeCall.
   ====================================================== */
   function initCallTimer(cs) {
-    var call = CALLS[cs.callIndex];
+    var call = state.shiftCalls[cs.callIndex];
     cs.countdown.totalMs = TIMER_DURATIONS_MS[call.urgencyLevel];
     cs.countdown.remainingMs = cs.countdown.totalMs;
 
@@ -1240,9 +1618,9 @@
   }
 
   function renderFreshCall(cs) {
-    var call = CALLS[cs.callIndex];
+    var call = state.shiftCalls[cs.callIndex];
 
-    el.callCounter.textContent = "Call " + (cs.callIndex + 1) + " of " + CALLS.length;
+    el.callCounter.textContent = "Call " + (cs.callIndex + 1) + " of " + state.shiftCalls.length;
     el.streakIndicator.textContent = "🔥 Streak: " + state.streak;
     el.callerLabel.textContent = "Unknown Caller";
     el.curveballSlot.innerHTML = "";
@@ -1270,9 +1648,9 @@
   }
 
   function renderResumedCall(cs) {
-    var call = CALLS[cs.callIndex];
+    var call = state.shiftCalls[cs.callIndex];
 
-    el.callCounter.textContent = "Call " + (cs.callIndex + 1) + " of " + CALLS.length;
+    el.callCounter.textContent = "Call " + (cs.callIndex + 1) + " of " + state.shiftCalls.length;
     el.streakIndicator.textContent = "🔥 Streak: " + state.streak;
     el.callerLabel.textContent = "Unknown Caller";
     updateHoldIndicator();
@@ -1480,7 +1858,7 @@
   function showOverlapBanner(cs) {
     cs.overlapShown = true; // one opportunity per call, consumed either way it's resolved
     var targetIndex = cs.callIndex + 1;
-    var targetCall = CALLS[targetIndex];
+    var targetCall = state.shiftCalls[targetIndex];
 
     state.bannerLocked = false;
     el.incomingUrgencyBadge.textContent = targetCall.urgencyLevel;
@@ -1523,6 +1901,7 @@
     state.callsHandled++;
     state.callsWrong++;
     state.streak = 0;
+    recordPaycheckEntry(targetIndex, "WRONG");
   }
 
   function updateHoldIndicator() {
@@ -1534,7 +1913,9 @@
   ====================================================== */
   function renderVehicleOptions(cs, call) {
     el.vehicleContainer.innerHTML = "";
-    ["police", "fire", "ems"].forEach(function (key) {
+    // Only vehicle types the player's current rank has unlocked are ever
+    // shown as an option — a locked type never appears as a button.
+    getUnlockedVehicleKeys().forEach(function (key) {
       var selected = cs.selectedVehicles.indexOf(key) !== -1;
 
       var btn = document.createElement("button");
@@ -1547,7 +1928,7 @@
       checkSpan.textContent = selected ? "☑" : "☐";
 
       var nameSpan = document.createElement("span");
-      nameSpan.textContent = VEHICLE_LABELS[key];
+      nameSpan.textContent = VEHICLE_TYPES[key].label;
 
       var labelWrap = document.createElement("span");
       labelWrap.appendChild(checkSpan);
@@ -1605,7 +1986,7 @@
 
     var cs = state.activeCall;
     if (!cs) return;
-    var call = CALLS[cs.callIndex];
+    var call = state.shiftCalls[cs.callIndex];
 
     // Defense in depth: block dispatch until all follow-up questions are asked,
     // even if this somehow fires while the button's disabled attribute is stale.
@@ -1638,7 +2019,7 @@
     // Show "Dispatching..." loading state
     el.dispatchingOverlay.classList.add("active");
 
-    var call = CALLS[cs.callIndex];
+    var call = state.shiftCalls[cs.callIndex];
     var selected = cs.selectedVehicles.slice();
     var tier = scoreDispatch(selected, call.correctVehicles);
 
@@ -1690,21 +2071,31 @@
       state.streak = 0;
     }
 
+    recordPaycheckEntry(cs.callIndex, tier);
+
     // A stale incoming-call banner (never answered or declined) shouldn't
     // survive into the outcome screen — the call it belonged to just fell
     // back to being an ordinary, not-yet-played call.
     hideIncomingCallBanner();
 
-    var call = CALLS[cs.callIndex];
+    var call = state.shiftCalls[cs.callIndex];
     renderOutcome(call, selected, tier, isTimeout);
     showScreen("outcome");
+  }
+
+  // Tracked silently as calls resolve — none of this touches player.money
+  // until the paycheck is collected at the end of the shift.
+  function recordPaycheckEntry(callIndex, tier) {
+    var amount = TIER_PAYOUT[tier];
+    state.shiftEarnings += amount;
+    state.paycheckEntries.push({ callNumber: callIndex + 1, tier: tier, amount: amount });
   }
 
   /* ======================================================
      RENDERING — OUTCOME SCREEN
   ====================================================== */
   function labelList(keys) {
-    return keys.map(function (k) { return VEHICLE_LABELS[k]; }).join(" and ");
+    return keys.map(function (k) { return VEHICLE_TYPES[k].label; }).join(" and ");
   }
 
   function buildOutcomeMessage(call, tier, selected, isTimeout) {
@@ -1761,7 +2152,7 @@
     // to be resumed, whether more unconsumed calls remain, or it's over.
     if (state.heldCall) {
       el.nextCallBtn.textContent = "Return to Held Call";
-    } else if (nextUnconsumedIndex(state.currentCallIndex) >= CALLS.length) {
+    } else if (nextUnconsumedIndex(state.currentCallIndex) >= state.shiftCalls.length) {
       el.nextCallBtn.textContent = "Finish Shift";
     } else {
       el.nextCallBtn.textContent = "Next Call";
@@ -1791,12 +2182,12 @@
      ------------------------------------------------------
      nextUnconsumedIndex skips any call already resolved out of
      order — either played early as an interruption, or auto-declined
-     via "Let It Ring" — so the shift always ends after exactly
-     CALLS.length calls, regardless of how many overlaps happened.
+     via "Let It Ring" — so the shift always ends after exactly 6 calls,
+     regardless of how many overlaps happened.
   ====================================================== */
   function nextUnconsumedIndex(fromIndex) {
     var i = fromIndex + 1;
-    while (i < CALLS.length && state.consumedIndices[i]) i++;
+    while (i < state.shiftCalls.length && state.consumedIndices[i]) i++;
     return i;
   }
 
@@ -1813,7 +2204,7 @@
     }
 
     var next = nextUnconsumedIndex(state.currentCallIndex);
-    if (next >= CALLS.length) {
+    if (next >= state.shiftCalls.length) {
       goToSummary();
     } else {
       state.currentCallIndex = next;
@@ -1840,6 +2231,8 @@
     setTimeout(function () { startShiftLocked = false; }, 350);
 
     resetShiftState();
+    state.shiftCalls = buildShiftCallQueue();
+    updateMoneyDisplays(); // static for the whole shift — only a collected paycheck changes it
     showScreen("shift");
     beginCall(0);
   }
@@ -1861,6 +2254,7 @@
       state.callsHandled++;
       state.callsWrong++;
       state.streak = 0;
+      recordPaycheckEntry(state.heldCall.callIndex, "WRONG");
       state.heldCall = null;
     }
 
@@ -1869,7 +2263,7 @@
   }
 
   /* ======================================================
-     RENDERING — SUMMARY SCREEN
+     RENDERING — SUMMARY / PAYCHECK SCREEN
   ====================================================== */
   function goToSummary() {
     el.statHandled.textContent = state.callsHandled;
@@ -1877,7 +2271,128 @@
     el.statPartial.textContent = state.callsPartial;
     el.statWrong.textContent = state.callsWrong;
     el.statStreak.textContent = state.bestStreak;
+
+    renderPaycheckList();
+    el.paycheckTotal.textContent = "$" + state.shiftEarnings;
+
+    el.collectMoneyBtn.disabled = false;
+    el.collectMoneyBtn.classList.remove("collected");
+    el.collectMoneyBtn.textContent = "💰 Collect Money";
+
     showScreen("summary");
+  }
+
+  function renderPaycheckList() {
+    el.paycheckList.innerHTML = "";
+    var sorted = state.paycheckEntries.slice().sort(function (a, b) {
+      return a.callNumber - b.callNumber;
+    });
+    var tierLabels = { PERFECT: "Perfect", PARTIAL: "Partial", WRONG: "Wrong" };
+
+    sorted.forEach(function (entry) {
+      var row = document.createElement("div");
+      row.className = "paycheck-row";
+
+      var label = document.createElement("span");
+      label.textContent = "Call " + entry.callNumber + " — " + tierLabels[entry.tier];
+
+      var amount = document.createElement("span");
+      amount.className = "paycheck-amount tier-" + entry.tier;
+      amount.textContent = "$" + entry.amount;
+
+      row.appendChild(label);
+      row.appendChild(amount);
+      el.paycheckList.appendChild(row);
+    });
+  }
+
+  /* ======================================================
+     EVENT HANDLING — COLLECT MONEY
+  ====================================================== */
+  function handleCollectMoney() {
+    // Guard: rapid double-tap can't add the paycheck twice
+    if (state.paycheckCollected) return;
+    collectPaycheck(true);
+  }
+
+  // animate=true plays the counter/coin-burst effect (manual tap);
+  // animate=false is used when auto-collecting silently on exit.
+  function collectPaycheck(animate) {
+    if (state.paycheckCollected) return;
+    state.paycheckCollected = true;
+
+    var from = player.money;
+    var to = player.money + state.shiftEarnings;
+    player.money = to;
+
+    el.collectMoneyBtn.disabled = true;
+    el.collectMoneyBtn.classList.add("collected");
+    el.collectMoneyBtn.textContent = "Collected ✓";
+
+    if (animate) {
+      spawnMoneyBurst(el.collectMoneyBtn);
+      animateMoneyCounter(from, to);
+    } else {
+      updateMoneyDisplays();
+    }
+  }
+
+  // Ticks the top-bar/home money numbers up rapidly from `from` to `to`
+  // over ~600ms — the "counter rapidly ticking up" collection effect.
+  function animateMoneyCounter(from, to) {
+    var durationMs = 600;
+    var startTime = null;
+
+    function step(timestamp) {
+      if (startTime === null) startTime = timestamp;
+      var progress = Math.min(1, (timestamp - startTime) / durationMs);
+      var current = Math.round(from + (to - from) * progress);
+      setMoneyDisplayValue(current);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        setMoneyDisplayValue(to);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function spawnMoneyBurst(anchorEl) {
+    var symbols = ["💵", "🪙", "💰"];
+    for (var i = 0; i < 12; i++) {
+      var piece = document.createElement("div");
+      piece.className = "money-burst-piece";
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 60 + Math.random() * 80;
+      piece.style.setProperty("--tx", Math.cos(angle) * dist + "px");
+      piece.style.setProperty("--ty", (Math.sin(angle) * dist - 40) + "px");
+      piece.style.setProperty("--rot", (Math.random() * 360) + "deg");
+      piece.textContent = symbols[i % symbols.length];
+      piece.style.animationDelay = (Math.random() * 0.15) + "s";
+      anchorEl.appendChild(piece);
+    }
+    setTimeout(function () {
+      var pieces = anchorEl.querySelectorAll(".money-burst-piece");
+      pieces.forEach(function (p) { p.remove(); });
+    }, 1100);
+  }
+
+  /* ======================================================
+     MONEY / RANK DISPLAYS
+  ====================================================== */
+  function setMoneyDisplayValue(amount) {
+    var text = "💰 $" + amount;
+    el.homeMoneyDisplay.textContent = text;
+    el.shiftMoneyDisplay.textContent = text;
+    el.rankMoneyDisplay.textContent = text;
+  }
+
+  function updateMoneyDisplays() {
+    setMoneyDisplayValue(player.money);
+  }
+
+  function updateRankDisplays() {
+    el.homeRankDisplay.textContent = "Rank: " + RANKS[player.rankIndex].name;
   }
 
   var backHomeLocked = false;
@@ -1886,7 +2401,110 @@
     backHomeLocked = true;
     setTimeout(function () { backHomeLocked = false; }, 350);
 
+    // Simpler and safer than blocking navigation: any uncollected
+    // paycheck is auto-collected (silently, no animation) on the way out.
+    if (!state.paycheckCollected) {
+      collectPaycheck(false);
+    }
+
     resetShiftState();
+    updateRankDisplays();
+    showScreen("home");
+  }
+
+  /* ======================================================
+     RANK / UPGRADE SCREEN
+     ------------------------------------------------------
+     Ranks unlock strictly in order: a rank's "Rank Up" button is only
+     ever interactable when it is EXACTLY player.rankIndex + 1, no
+     matter how much money the player has, so it's impossible to skip
+     ahead by saving up past an earlier rank.
+  ====================================================== */
+  function renderRankScreen() {
+    updateMoneyDisplays();
+    el.rankList.innerHTML = "";
+
+    RANKS.forEach(function (rank, idx) {
+      var row = document.createElement("div");
+      row.className = "rank-row" + (idx === player.rankIndex ? " current" : "");
+
+      var main = document.createElement("div");
+      main.className = "rank-row-main";
+
+      var name = document.createElement("div");
+      name.className = "rank-row-name";
+      name.textContent = rank.name;
+
+      var status = document.createElement("div");
+      status.className = "rank-row-status";
+      if (idx === player.rankIndex) {
+        status.textContent = "★ Current Rank";
+      } else if (idx < player.rankIndex) {
+        status.textContent = "Unlocked ✓";
+      } else {
+        status.textContent = "Costs $" + rank.cost;
+      }
+
+      main.appendChild(name);
+      main.appendChild(status);
+      row.appendChild(main);
+
+      if (idx > player.rankIndex) {
+        var btn = document.createElement("button");
+        btn.className = "rank-up-btn";
+        btn.type = "button";
+        btn.textContent = "Rank Up — $" + rank.cost;
+
+        // Only the very next rank is ever eligible, regardless of money —
+        // ranks further ahead stay disabled even if affordable.
+        var isNext = idx === player.rankIndex + 1;
+        var canAfford = player.money >= rank.cost;
+        btn.disabled = !(isNext && canAfford);
+
+        btn.addEventListener("click", function () {
+          handleRankUp(idx);
+        });
+
+        row.appendChild(btn);
+      }
+
+      el.rankList.appendChild(row);
+    });
+  }
+
+  var rankUpLocked = false;
+  function handleRankUp(idx) {
+    // Guard: rapid double-tap can't deduct money or apply the rank twice
+    if (rankUpLocked) return;
+
+    var rank = RANKS[idx];
+    var isNext = idx === player.rankIndex + 1;
+    var canAfford = player.money >= rank.cost;
+    if (!isNext || !canAfford) return;
+
+    rankUpLocked = true;
+    setTimeout(function () { rankUpLocked = false; }, 350);
+
+    player.money -= rank.cost;
+    player.rankIndex = idx;
+    updateMoneyDisplays();
+    updateRankDisplays();
+    renderRankScreen();
+
+    var newRow = el.rankList.children[idx];
+    if (newRow) {
+      spawnMoneyBurst(newRow);
+      newRow.classList.add("just-ranked-up");
+      setTimeout(function () { newRow.classList.remove("just-ranked-up"); }, 650);
+    }
+  }
+
+  function handleOpenUpgrade() {
+    renderRankScreen();
+    showScreen("rank");
+  }
+
+  function handleRankBack() {
     showScreen("home");
   }
 
@@ -1894,15 +2512,20 @@
      WIRE UP EVENTS
   ====================================================== */
   el.startShiftBtn.addEventListener("click", handleStartShift);
+  el.upgradeBtn.addEventListener("click", handleOpenUpgrade);
+  el.rankBackBtn.addEventListener("click", handleRankBack);
   el.endShiftBtn.addEventListener("click", handleEndShift);
   el.chooseVehicleBtn.addEventListener("click", handleChooseVehicle);
   el.confirmDispatchBtn.addEventListener("click", handleConfirmDispatch);
   el.nextCallBtn.addEventListener("click", handleNextCall);
+  el.collectMoneyBtn.addEventListener("click", handleCollectMoney);
   el.backHomeBtn.addEventListener("click", handleBackHome);
 
   /* ======================================================
      INIT — always start fresh on load (no persistence)
   ====================================================== */
+  updateMoneyDisplays();
+  updateRankDisplays();
   showScreen("home");
 })();
 </script>
