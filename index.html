@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rescue Rush</title>
+<style>
+  /* ======================================================
+     ROOT / RESET
+  ====================================================== */
+  :root {
+    --red: #ff4d4d;
+    --red-dark: #e63946;
+    --blue: #3a86ff;
+    --blue-dark: #2667cc;
+    --yellow: #ffd60a;
+    --orange: #ff9f1c;
+    --green: #2ec4b6;
+    --dark: #22223b;
+    --grey: #cfd2da;
+    --bg: #eef1ff;
+    --white: #ffffff;
+    --font: "Trebuchet MS", "Comic Sans MS", "Baloo 2", sans-serif;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: var(--bg);
+    font-family: var(--font);
+    color: var(--dark);
+    overscroll-behavior: none;
+  }
+
+  #app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #eef1ff 0%, #e4e9ff 100%);
+    overflow-x: hidden;
+  }
+
+  button {
+    font-family: var(--font);
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+
+  button:active {
+    transform: scale(0.95);
+  }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px;
+    animation: fadeSlideIn 280ms ease forwards;
+  }
+
+  .screen.active {
+    display: flex;
+  }
+
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ======================================================
+     HOME SCREEN
+  ====================================================== */
+  #home-screen {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 14px;
+  }
+
+  .title-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+  }
+
+  .game-title {
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--red-dark);
+    text-shadow: 3px 3px 0 var(--yellow), 5px 5px 0 rgba(0,0,0,0.08);
+    letter-spacing: 1px;
+    margin: 0;
+  }
+
+  .game-emojis {
+    font-size: 2.4rem;
+    margin: 6px 0;
+  }
+
+  .tagline {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: var(--blue-dark);
+    margin: 6px 0 0 0;
+  }
+
+  .start-btn {
+    background: var(--red-dark);
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 900;
+    padding: 18px 46px;
+    border-radius: 50px;
+    box-shadow: 0 6px 0 #a4222c, 0 10px 20px rgba(230,57,70,0.35);
+    min-height: 60px;
+    animation: pulseGlow 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 6px 0 #a4222c, 0 10px 20px rgba(230,57,70,0.35); transform: scale(1); }
+    50% { box-shadow: 0 6px 0 #a4222c, 0 10px 34px rgba(230,57,70,0.6); transform: scale(1.04); }
+  }
+
+  .rank-placeholder {
+    margin-top: 26px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--dark);
+    background: var(--white);
+    padding: 8px 18px;
+    border-radius: 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  }
+
+  /* ======================================================
+     SHIFT / CALL SCREEN
+  ====================================================== */
+  #shift-screen {
+    padding: 14px 16px 24px;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+
+  .end-shift-btn {
+    background: var(--grey);
+    color: #555;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 10px 14px;
+    border-radius: 30px;
+    min-height: 40px;
+  }
+
+  .top-right-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+
+  .call-counter {
+    font-weight: bold;
+    font-size: 0.95rem;
+    background: var(--white);
+    padding: 6px 12px;
+    border-radius: 14px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+  }
+
+  .streak-indicator {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: var(--orange);
+    background: #fff3e0;
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .call-panel {
+    background: var(--white);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+  }
+
+  .caller-label {
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: var(--blue-dark);
+    margin-bottom: 8px;
+  }
+
+  .transcript-box {
+    min-height: 70px;
+    font-size: 1.05rem;
+    line-height: 1.4;
+    margin-bottom: 12px;
+  }
+
+  .transcript-box .cursor {
+    display: inline-block;
+    width: 2px;
+    background: var(--dark);
+    margin-left: 2px;
+    animation: blink 0.8s step-start infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .urgency-badge {
+    display: inline-block;
+    font-weight: 900;
+    font-size: 0.8rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .urgency-low { background: var(--yellow); color: #6b5900; }
+  .urgency-medium { background: var(--orange); }
+  .urgency-high { background: var(--red-dark); animation: pulseHigh 1s ease-in-out infinite; }
+
+  @keyframes pulseHigh {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(230,57,70,0.6); }
+    50% { box-shadow: 0 0 0 10px rgba(230,57,70,0); }
+  }
+
+  .followup-section {
+    margin-bottom: 16px;
+  }
+
+  .section-label {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #777;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .followup-btn {
+    display: block;
+    width: 100%;
+    background: var(--blue);
+    color: white;
+    font-weight: bold;
+    font-size: 0.95rem;
+    padding: 14px 16px;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    min-height: 48px;
+    text-align: left;
+  }
+
+  .followup-btn:disabled {
+    background: var(--grey);
+    color: #888;
+  }
+
+  .followup-answer {
+    background: #f0f4ff;
+    border-left: 4px solid var(--blue);
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin: -4px 0 10px 0;
+    font-size: 0.9rem;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 280ms ease, opacity 280ms ease, padding 280ms ease, margin 280ms ease;
+  }
+
+  .followup-answer.revealed {
+    max-height: 200px;
+    opacity: 1;
+  }
+
+  .choose-vehicle-btn {
+    display: block;
+    width: 100%;
+    background: var(--dark);
+    color: white;
+    font-weight: 900;
+    font-size: 1rem;
+    padding: 16px;
+    border-radius: 18px;
+    min-height: 52px;
+  }
+
+  .vehicle-section {
+    margin-top: 4px;
+  }
+
+  .vehicle-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    color: white;
+    font-weight: 900;
+    font-size: 1.05rem;
+    padding: 16px 20px;
+    border-radius: 18px;
+    margin-bottom: 10px;
+    min-height: 56px;
+  }
+
+  .vehicle-btn:disabled {
+    opacity: 0.5;
+  }
+
+  .vehicle-police { background: var(--blue-dark); }
+  .vehicle-fire { background: var(--red-dark); }
+  .vehicle-ems { background: #f4a90c; }
+
+  .eta-tag {
+    font-size: 0.85rem;
+    font-weight: bold;
+    background: rgba(255,255,255,0.25);
+    padding: 4px 10px;
+    border-radius: 12px;
+  }
+
+  .dispatching-overlay {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    flex: 1;
+    gap: 10px;
+  }
+
+  .dispatching-overlay.active {
+    display: flex;
+  }
+
+  .dispatching-text {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: var(--dark);
+  }
+
+  .dots span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 4px;
+    background: var(--red-dark);
+    border-radius: 50%;
+    animation: dotBounce 1s infinite ease-in-out;
+  }
+
+  .dots span:nth-child(2) { animation-delay: 0.15s; }
+  .dots span:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes dotBounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-10px); opacity: 1; }
+  }
+
+  /* ======================================================
+     OUTCOME SCREEN
+  ====================================================== */
+  #outcome-screen {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .outcome-icon {
+    font-size: 4.5rem;
+    margin-bottom: 10px;
+  }
+
+  .outcome-icon.correct {
+    animation: bounceScaleIn 500ms cubic-bezier(.36,1.5,.64,1);
+  }
+
+  .outcome-icon.wrong {
+    animation: shakeIcon 500ms ease;
+  }
+
+  @keyframes bounceScaleIn {
+    0% { transform: scale(0); opacity: 0; }
+    60% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes shakeIcon {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-14px); }
+    40% { transform: translateX(12px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(6px); }
+  }
+
+  .outcome-title {
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin: 6px 0;
+  }
+
+  .outcome-title.correct { color: var(--green); }
+  .outcome-title.wrong { color: var(--red-dark); }
+
+  .outcome-message {
+    font-size: 1rem;
+    color: #444;
+    margin: 6px 0 30px 0;
+    max-width: 320px;
+  }
+
+  .next-call-btn {
+    background: var(--blue-dark);
+    color: white;
+    font-weight: 900;
+    font-size: 1.1rem;
+    padding: 16px 40px;
+    border-radius: 40px;
+    min-height: 54px;
+    box-shadow: 0 5px 0 #1c4c99;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    pointer-events: none;
+    animation: confettiBurst 900ms ease-out forwards;
+  }
+
+  @keyframes confettiBurst {
+    0% { transform: translate(-50%, -50%) rotate(0deg) translateY(0); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); opacity: 0; }
+  }
+
+  /* ======================================================
+     SUMMARY SCREEN
+  ====================================================== */
+  #summary-screen {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .summary-title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--dark);
+    margin-bottom: 20px;
+  }
+
+  .summary-stats {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 30px;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border-radius: 18px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+    font-weight: bold;
+  }
+
+  .stat-card .stat-value {
+    font-size: 1.3rem;
+    font-weight: 900;
+  }
+
+  .stat-correct .stat-value { color: var(--green); }
+  .stat-wrong .stat-value { color: var(--red-dark); }
+  .stat-streak .stat-value { color: var(--orange); }
+
+  .back-home-btn {
+    background: var(--red-dark);
+    color: white;
+    font-weight: 900;
+    font-size: 1.1rem;
+    padding: 16px 40px;
+    border-radius: 40px;
+    min-height: 54px;
+    box-shadow: 0 5px 0 #a4222c;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ======================================================
+       SCREEN 1: HOME
+  ====================================================== -->
+  <div id="home-screen" class="screen active">
+    <div class="title-wrap">
+      <div class="game-emojis">🚓 🚒 🚑</div>
+      <h1 class="game-title">Rescue Rush</h1>
+      <p class="tagline">Answer the call. Save the day!</p>
+    </div>
+    <button class="start-btn" id="start-shift-btn">Start Shift</button>
+    <div class="rank-placeholder">Rank: 911 Dispatcher</div>
+  </div>
+
+  <!-- ======================================================
+       SCREEN 2: ACTIVE SHIFT / CALL
+  ====================================================== -->
+  <div id="shift-screen" class="screen">
+    <div class="top-bar">
+      <button class="end-shift-btn" id="end-shift-btn">End Shift</button>
+      <div class="top-right-info">
+        <div class="call-counter" id="call-counter">Call 1 of 6</div>
+        <div class="streak-indicator" id="streak-indicator">🔥 Streak: 0</div>
+      </div>
+    </div>
+
+    <div class="call-panel" id="call-panel">
+      <div class="caller-label" id="caller-label">Unknown Caller</div>
+      <div class="transcript-box" id="transcript-box"></div>
+      <div class="urgency-badge" id="urgency-badge">Low</div>
+    </div>
+
+    <div class="followup-section">
+      <div class="section-label">Ask Follow-Up Questions</div>
+      <div id="followup-container"></div>
+    </div>
+
+    <button class="choose-vehicle-btn" id="choose-vehicle-btn">Choose Vehicle</button>
+
+    <div class="vehicle-section" id="vehicle-section" style="display:none;">
+      <div class="section-label">Dispatch a Vehicle</div>
+      <div id="vehicle-container"></div>
+    </div>
+
+    <div class="dispatching-overlay" id="dispatching-overlay">
+      <div class="dispatching-text">Dispatching</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       SCREEN 3: OUTCOME
+  ====================================================== -->
+  <div id="outcome-screen" class="screen">
+    <div class="outcome-icon" id="outcome-icon">✅</div>
+    <div class="outcome-title" id="outcome-title">Great Call!</div>
+    <div class="outcome-message" id="outcome-message">Help is on the way.</div>
+    <button class="next-call-btn" id="next-call-btn">Next Call</button>
+  </div>
+
+  <!-- ======================================================
+       SCREEN 4: SUMMARY
+  ====================================================== -->
+  <div id="summary-screen" class="screen">
+    <div class="summary-title">Shift Complete!</div>
+    <div class="summary-stats">
+      <div class="stat-card">
+        <span>Calls Handled</span>
+        <span class="stat-value" id="stat-handled">0</span>
+      </div>
+      <div class="stat-card stat-correct">
+        <span>Calls Correct</span>
+        <span class="stat-value" id="stat-correct">0</span>
+      </div>
+      <div class="stat-card stat-wrong">
+        <span>Calls Wrong</span>
+        <span class="stat-value" id="stat-wrong">0</span>
+      </div>
+      <div class="stat-card stat-streak">
+        <span>Best Streak</span>
+        <span class="stat-value" id="stat-streak">0</span>
+      </div>
+    </div>
+    <button class="back-home-btn" id="back-home-btn">Back to Home</button>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ======================================================
+     DATA — hardcoded calls
+     Field names must stay consistent for Phase 2 growth.
+  ====================================================== */
+  var CALLS = [
+    {
+      id: 1,
+      transcript: "Help! Someone broke into my house and I think they're still inside!",
+      urgencyLevel: "High",
+      followUpQuestions: [
+        { questionText: "Is the intruder armed?", answerText: "I'm not sure, I didn't see a weapon but I'm scared." },
+        { questionText: "Are you safe right now?", answerText: "Yes, I'm locked in the bathroom upstairs." }
+      ],
+      correctVehicle: "police",
+      vehicleETAs: { police: 4, fire: 9, ems: 7 }
+    },
+    {
+      id: 2,
+      transcript: "There's smoke coming out of my neighbor's kitchen window!",
+      urgencyLevel: "High",
+      followUpQuestions: [
+        { questionText: "Do you see flames?", answerText: "Not yet, just thick grey smoke." },
+        { questionText: "Is anyone inside the house?", answerText: "I think the family is still home, I saw lights on." }
+      ],
+      correctVehicle: "fire",
+      vehicleETAs: { police: 5, fire: 3, ems: 6 }
+    },
+    {
+      id: 3,
+      transcript: "My grandpa just collapsed and he's not responding to me.",
+      urgencyLevel: "High",
+      followUpQuestions: [
+        { questionText: "Is he breathing?", answerText: "It looks shallow, kind of gasping." },
+        { questionText: "Does he have any medical conditions?", answerText: "Yes, he has a heart condition." }
+      ],
+      correctVehicle: "ems",
+      vehicleETAs: { police: 6, fire: 5, ems: 4 }
+    },
+    {
+      id: 4,
+      transcript: "Someone just stole my bike and rode off toward the park.",
+      urgencyLevel: "Low",
+      followUpQuestions: [
+        { questionText: "Can you describe the person?", answerText: "Wearing a red hoodie and black cap, teenager maybe." },
+        { questionText: "Which direction did they go?", answerText: "East, toward the park entrance on Maple Street." }
+      ],
+      correctVehicle: "police",
+      vehicleETAs: { police: 8, fire: 12, ems: 10 }
+    },
+    {
+      id: 5,
+      transcript: "My neighbor's garage is on fire and it's spreading to the fence!",
+      urgencyLevel: "Medium",
+      followUpQuestions: [
+        { questionText: "Is anyone near the fire?", answerText: "No, everyone's clear, but it's close to another house." },
+        { questionText: "How big is the fire right now?", answerText: "It's covering most of the garage roof already." }
+      ],
+      correctVehicle: "fire",
+      vehicleETAs: { police: 6, fire: 4, ems: 8 }
+    },
+    {
+      id: 6,
+      transcript: "My daughter fell off her bike and her arm looks really swollen, she's crying a lot.",
+      urgencyLevel: "Medium",
+      followUpQuestions: [
+        { questionText: "Is she conscious and alert?", answerText: "Yes, she's crying but talking to me fine." },
+        { questionText: "Is there any bleeding?", answerText: "No bleeding, just the swelling and she won't move it." }
+      ],
+      correctVehicle: "ems",
+      vehicleETAs: { police: 7, fire: 6, ems: 3 }
+    }
+  ];
+
+  /* ======================================================
+     STATE — single source of truth, lives in JS only
+  ====================================================== */
+  var state = {
+    currentCallIndex: 0,
+    streak: 0,
+    bestStreak: 0,
+    callsCorrect: 0,
+    callsWrong: 0,
+    callsHandled: 0,
+    questionsUsed: [false, false],   // per-call, resets each call
+    callLocked: false,               // prevents double vehicle taps
+    typewriterTimer: null,
+    typewriterDone: false,
+    lastOutcomeCorrect: false,
+    lastOutcomeVehicle: null
+  };
+
+  /* ======================================================
+     DOM REFERENCES
+  ====================================================== */
+  var screens = {
+    home: document.getElementById("home-screen"),
+    shift: document.getElementById("shift-screen"),
+    outcome: document.getElementById("outcome-screen"),
+    summary: document.getElementById("summary-screen")
+  };
+
+  var el = {
+    startShiftBtn: document.getElementById("start-shift-btn"),
+    endShiftBtn: document.getElementById("end-shift-btn"),
+    callCounter: document.getElementById("call-counter"),
+    streakIndicator: document.getElementById("streak-indicator"),
+    callerLabel: document.getElementById("caller-label"),
+    transcriptBox: document.getElementById("transcript-box"),
+    urgencyBadge: document.getElementById("urgency-badge"),
+    followupContainer: document.getElementById("followup-container"),
+    chooseVehicleBtn: document.getElementById("choose-vehicle-btn"),
+    vehicleSection: document.getElementById("vehicle-section"),
+    vehicleContainer: document.getElementById("vehicle-container"),
+    dispatchingOverlay: document.getElementById("dispatching-overlay"),
+    callPanelGroup: [
+      document.getElementById("call-panel")
+    ],
+    outcomeIcon: document.getElementById("outcome-icon"),
+    outcomeTitle: document.getElementById("outcome-title"),
+    outcomeMessage: document.getElementById("outcome-message"),
+    nextCallBtn: document.getElementById("next-call-btn"),
+    outcomeScreen: document.getElementById("outcome-screen"),
+    statHandled: document.getElementById("stat-handled"),
+    statCorrect: document.getElementById("stat-correct"),
+    statWrong: document.getElementById("stat-wrong"),
+    statStreak: document.getElementById("stat-streak"),
+    backHomeBtn: document.getElementById("back-home-btn")
+  };
+
+  var VEHICLE_LABELS = {
+    police: "🚓 Police",
+    fire: "🚒 Fire",
+    ems: "🚑 EMS"
+  };
+
+  /* ======================================================
+     SCREEN NAVIGATION
+  ====================================================== */
+  function showScreen(name) {
+    Object.keys(screens).forEach(function (key) {
+      screens[key].classList.remove("active");
+    });
+    screens[name].classList.add("active");
+  }
+
+  /* ======================================================
+     STATE MANAGEMENT
+  ====================================================== */
+  function resetShiftState() {
+    state.currentCallIndex = 0;
+    state.streak = 0;
+    state.bestStreak = 0;
+    state.callsCorrect = 0;
+    state.callsWrong = 0;
+    state.callsHandled = 0;
+    state.questionsUsed = [false, false];
+    state.callLocked = false;
+    clearTypewriter();
+    state.typewriterDone = false;
+  }
+
+  function resetPerCallState() {
+    state.questionsUsed = [false, false];
+    state.callLocked = false;
+    clearTypewriter();
+    state.typewriterDone = false;
+  }
+
+  function clearTypewriter() {
+    if (state.typewriterTimer) {
+      clearInterval(state.typewriterTimer);
+      state.typewriterTimer = null;
+    }
+  }
+
+  /* ======================================================
+     RENDERING — CALL SCREEN
+  ====================================================== */
+  function renderCall() {
+    resetPerCallState();
+    var call = CALLS[state.currentCallIndex];
+
+    el.callCounter.textContent = "Call " + (state.currentCallIndex + 1) + " of " + CALLS.length;
+    el.streakIndicator.textContent = "🔥 Streak: " + state.streak;
+    el.callerLabel.textContent = "Unknown Caller";
+
+    // Urgency badge
+    el.urgencyBadge.textContent = call.urgencyLevel;
+    el.urgencyBadge.className = "urgency-badge urgency-" + call.urgencyLevel.toLowerCase();
+
+    // Typewriter transcript
+    renderTypewriter(call.transcript);
+
+    // Follow-up questions
+    renderFollowUps(call);
+
+    // Vehicle section hidden until "Choose Vehicle" tapped
+    el.vehicleSection.style.display = "none";
+    el.chooseVehicleBtn.style.display = "block";
+    el.chooseVehicleBtn.disabled = false;
+
+    el.dispatchingOverlay.classList.remove("active");
+    setShiftInteractive(true);
+  }
+
+  function renderTypewriter(text) {
+    el.transcriptBox.innerHTML = "";
+    var span = document.createElement("span");
+    var cursor = document.createElement("span");
+    cursor.className = "cursor";
+    el.transcriptBox.appendChild(span);
+    el.transcriptBox.appendChild(cursor);
+
+    var i = 0;
+    state.typewriterDone = false;
+
+    function finishNow() {
+      clearTypewriter();
+      span.textContent = text;
+      state.typewriterDone = true;
+      cursor.remove();
+    }
+
+    state.typewriterTimer = setInterval(function () {
+      i++;
+      span.textContent = text.slice(0, i);
+      if (i >= text.length) {
+        finishNow();
+      }
+    }, 22);
+
+    // Tap-to-skip
+    el.transcriptBox.onclick = function () {
+      if (!state.typewriterDone) {
+        finishNow();
+      }
+    };
+  }
+
+  function renderFollowUps(call) {
+    el.followupContainer.innerHTML = "";
+    call.followUpQuestions.forEach(function (q, idx) {
+      var wrapper = document.createElement("div");
+
+      var btn = document.createElement("button");
+      btn.className = "followup-btn";
+      btn.textContent = q.questionText;
+      btn.type = "button";
+
+      var answerDiv = document.createElement("div");
+      answerDiv.className = "followup-answer";
+      answerDiv.textContent = q.answerText;
+
+      btn.addEventListener("click", function () {
+        // Guard against double-clicks / double-reveals
+        if (state.questionsUsed[idx]) return;
+        state.questionsUsed[idx] = true;
+        btn.disabled = true;
+        // Force reflow then reveal for smooth transition
+        requestAnimationFrame(function () {
+          answerDiv.classList.add("revealed");
+        });
+      });
+
+      wrapper.appendChild(btn);
+      wrapper.appendChild(answerDiv);
+      el.followupContainer.appendChild(wrapper);
+    });
+  }
+
+  function renderVehicleOptions(call) {
+    el.vehicleContainer.innerHTML = "";
+    ["police", "fire", "ems"].forEach(function (key) {
+      var btn = document.createElement("button");
+      btn.className = "vehicle-btn vehicle-" + key;
+      btn.type = "button";
+
+      var nameSpan = document.createElement("span");
+      nameSpan.textContent = VEHICLE_LABELS[key];
+
+      var etaSpan = document.createElement("span");
+      etaSpan.className = "eta-tag";
+      etaSpan.textContent = call.vehicleETAs[key] + " min";
+
+      btn.appendChild(nameSpan);
+      btn.appendChild(etaSpan);
+
+      btn.addEventListener("click", function () {
+        dispatchVehicle(key);
+      });
+
+      el.vehicleContainer.appendChild(btn);
+    });
+  }
+
+  function setShiftInteractive(enabled) {
+    el.endShiftBtn.disabled = !enabled;
+  }
+
+  /* ======================================================
+     EVENT HANDLING — VEHICLE DISPATCH
+  ====================================================== */
+  function dispatchVehicle(vehicleKey) {
+    // Guard: prevent double submission / rapid double-tap
+    if (state.callLocked) return;
+    state.callLocked = true;
+
+    // Disable all vehicle buttons immediately
+    var vehicleButtons = el.vehicleContainer.querySelectorAll(".vehicle-btn");
+    vehicleButtons.forEach(function (b) { b.disabled = true; });
+    el.chooseVehicleBtn.disabled = true;
+
+    // Show "Dispatching..." loading state
+    el.dispatchingOverlay.classList.add("active");
+
+    var call = CALLS[state.currentCallIndex];
+    var isCorrect = vehicleKey === call.correctVehicle;
+
+    setTimeout(function () {
+      finalizeOutcome(call, vehicleKey, isCorrect);
+    }, 1000);
+  }
+
+  function finalizeOutcome(call, chosenVehicle, isCorrect) {
+    state.callsHandled++;
+
+    if (isCorrect) {
+      state.callsCorrect++;
+      state.streak++;
+      if (state.streak > state.bestStreak) state.bestStreak = state.streak;
+    } else {
+      state.callsWrong++;
+      state.streak = 0;
+    }
+
+    state.lastOutcomeCorrect = isCorrect;
+    state.lastOutcomeVehicle = chosenVehicle;
+
+    renderOutcome(call, isCorrect);
+    showScreen("outcome");
+  }
+
+  /* ======================================================
+     RENDERING — OUTCOME SCREEN
+  ====================================================== */
+  function renderOutcome(call, isCorrect) {
+    // Clear any leftover confetti
+    var oldConfetti = el.outcomeScreen.querySelectorAll(".confetti-piece");
+    oldConfetti.forEach(function (c) { c.remove(); });
+
+    if (isCorrect) {
+      el.outcomeIcon.textContent = "✅";
+      el.outcomeIcon.className = "outcome-icon correct";
+      el.outcomeTitle.textContent = "Great Call!";
+      el.outcomeTitle.className = "outcome-title correct";
+      el.outcomeMessage.textContent = "Help is on the way. Nice dispatching!";
+      spawnConfetti();
+    } else {
+      el.outcomeIcon.textContent = "❌";
+      el.outcomeIcon.className = "outcome-icon wrong";
+      el.outcomeTitle.textContent = "Wrong Call";
+      el.outcomeTitle.className = "outcome-title wrong";
+      el.outcomeMessage.textContent = "This needed " + VEHICLE_LABELS[call.correctVehicle] +
+        " — take another look at the details next time.";
+    }
+
+    // Force re-trigger animation on repeated outcomes
+    el.outcomeIcon.style.animation = "none";
+    void el.outcomeIcon.offsetWidth;
+    el.outcomeIcon.style.animation = "";
+
+    var isLastCall = state.currentCallIndex === CALLS.length - 1;
+    el.nextCallBtn.textContent = isLastCall ? "Finish Shift" : "Next Call";
+  }
+
+  function spawnConfetti() {
+    var colors = ["#ff4d4d", "#3a86ff", "#ffd60a", "#2ec4b6", "#ff9f1c"];
+    for (var i = 0; i < 16; i++) {
+      var piece = document.createElement("div");
+      piece.className = "confetti-piece";
+      var angle = Math.random() * Math.PI * 2;
+      var dist = 80 + Math.random() * 100;
+      var tx = Math.cos(angle) * dist + "px";
+      var ty = Math.sin(angle) * dist + "px";
+      piece.style.setProperty("--tx", tx);
+      piece.style.setProperty("--ty", ty);
+      piece.style.setProperty("--rot", (Math.random() * 360) + "deg");
+      piece.style.background = colors[i % colors.length];
+      piece.style.animationDelay = (Math.random() * 0.15) + "s";
+      el.outcomeScreen.appendChild(piece);
+    }
+  }
+
+  /* ======================================================
+     EVENT HANDLING — NEXT CALL / FINISH SHIFT
+  ====================================================== */
+  var nextCallLocked = false;
+  function handleNextCall() {
+    // Guard against rapid double-tap
+    if (nextCallLocked) return;
+    nextCallLocked = true;
+    setTimeout(function () { nextCallLocked = false; }, 350);
+
+    var isLastCall = state.currentCallIndex === CALLS.length - 1;
+    if (isLastCall) {
+      goToSummary();
+    } else {
+      state.currentCallIndex++;
+      showScreen("shift");
+      renderCall();
+    }
+  }
+
+  /* ======================================================
+     EVENT HANDLING — CHOOSE VEHICLE BUTTON
+  ====================================================== */
+  var chooseVehicleLocked = false;
+  function handleChooseVehicle() {
+    if (chooseVehicleLocked) return;
+    chooseVehicleLocked = true;
+    setTimeout(function () { chooseVehicleLocked = false; }, 350);
+
+    var call = CALLS[state.currentCallIndex];
+    renderVehicleOptions(call);
+    el.vehicleSection.style.display = "block";
+    el.chooseVehicleBtn.style.display = "none";
+  }
+
+  /* ======================================================
+     EVENT HANDLING — SHIFT START / END
+  ====================================================== */
+  var startShiftLocked = false;
+  function handleStartShift() {
+    if (startShiftLocked) return;
+    startShiftLocked = true;
+    setTimeout(function () { startShiftLocked = false; }, 350);
+
+    resetShiftState();
+    showScreen("shift");
+    renderCall();
+  }
+
+  var endShiftLocked = false;
+  function handleEndShift() {
+    if (endShiftLocked) return;
+    endShiftLocked = true;
+    setTimeout(function () { endShiftLocked = false; }, 350);
+
+    clearTypewriter();
+    goToSummary();
+  }
+
+  /* ======================================================
+     RENDERING — SUMMARY SCREEN
+  ====================================================== */
+  function goToSummary() {
+    el.statHandled.textContent = state.callsHandled;
+    el.statCorrect.textContent = state.callsCorrect;
+    el.statWrong.textContent = state.callsWrong;
+    el.statStreak.textContent = state.bestStreak;
+    showScreen("summary");
+  }
+
+  var backHomeLocked = false;
+  function handleBackHome() {
+    if (backHomeLocked) return;
+    backHomeLocked = true;
+    setTimeout(function () { backHomeLocked = false; }, 350);
+
+    resetShiftState();
+    showScreen("home");
+  }
+
+  /* ======================================================
+     WIRE UP EVENTS
+  ====================================================== */
+  el.startShiftBtn.addEventListener("click", handleStartShift);
+  el.endShiftBtn.addEventListener("click", handleEndShift);
+  el.chooseVehicleBtn.addEventListener("click", handleChooseVehicle);
+  el.nextCallBtn.addEventListener("click", handleNextCall);
+  el.backHomeBtn.addEventListener("click", handleBackHome);
+
+  /* ======================================================
+     INIT — always start fresh on load (no persistence)
+  ====================================================== */
+  showScreen("home");
+})();
+</script>
+</body>
+</html>
