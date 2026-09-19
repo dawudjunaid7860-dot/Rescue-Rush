@@ -198,6 +198,87 @@
     border-radius: 12px;
   }
 
+  .hold-indicator {
+    display: none;
+    font-weight: bold;
+    font-size: 0.8rem;
+    color: var(--purple);
+    background: rgba(139,92,246,0.15);
+    padding: 6px 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .hold-indicator.visible {
+    display: block;
+  }
+
+  /* ------- Incoming (overlapping) call banner ------- */
+  .incoming-call-banner {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    width: 100%;
+    max-width: 480px;
+    transform: translateX(-50%) translateY(-110%);
+    transition: transform 320ms cubic-bezier(.34,1.56,.64,1);
+    z-index: 100;
+    background: var(--surface-2);
+    border-bottom: 3px solid var(--purple);
+    border-radius: 0 0 18px 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  }
+
+  .incoming-call-banner.visible {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .incoming-call-icon {
+    font-size: 1.8rem;
+    animation: ringPulse 0.6s ease-in-out infinite;
+  }
+
+  @keyframes ringPulse {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(-15deg) scale(1.1); }
+    75% { transform: rotate(15deg) scale(1.1); }
+  }
+
+  .incoming-call-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .incoming-call-title {
+    font-weight: 900;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .incoming-call-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .answer-now-btn, .let-it-ring-btn {
+    min-height: 40px;
+    padding: 8px 14px;
+    border-radius: 14px;
+    font-weight: 900;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .answer-now-btn { background: var(--green); color: white; }
+  .let-it-ring-btn { background: var(--surface); color: var(--text-dim); }
+
   .call-panel {
     background: var(--surface);
     border-radius: 22px;
@@ -296,6 +377,27 @@
   @keyframes timerPulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+  }
+
+  /* ------- Curveball dialogue line ------- */
+  .curveball-line {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255,159,28,0.12);
+    border-left: 4px solid var(--orange);
+    color: var(--text);
+    font-weight: bold;
+    font-size: 0.95rem;
+  }
+
+  .curveball-line.flash {
+    animation: curveballFlash 900ms ease;
+  }
+
+  @keyframes curveballFlash {
+    0% { background: rgba(255,159,28,0.65); transform: scale(1.02); }
+    100% { background: rgba(255,159,28,0.12); transform: scale(1); }
   }
 
   .followup-section {
@@ -674,6 +776,8 @@
       </div>
     </div>
 
+    <div class="hold-indicator" id="hold-indicator">📞 1 call on hold</div>
+
     <div class="call-panel" id="call-panel">
       <div class="caller-label" id="caller-label">Unknown Caller</div>
       <div class="transcript-box" id="transcript-box"></div>
@@ -685,6 +789,8 @@
           <div class="timer-bar-fill" id="timer-bar-fill"></div>
         </div>
       </div>
+
+      <div id="curveball-slot"></div>
     </div>
 
     <div class="followup-section">
@@ -747,6 +853,22 @@
     <button class="back-home-btn" id="back-home-btn">Back to Home</button>
   </div>
 
+  <!-- ======================================================
+       OVERLAPPING CALL BANNER — slides down over the shift
+       screen only; never covers the whole screen.
+  ====================================================== -->
+  <div class="incoming-call-banner" id="incoming-call-banner">
+    <div class="incoming-call-icon">📞</div>
+    <div class="incoming-call-text">
+      <div class="incoming-call-title">Incoming Call</div>
+      <span class="urgency-badge" id="incoming-urgency-badge">Low</span>
+    </div>
+    <div class="incoming-call-actions">
+      <button class="answer-now-btn" id="answer-now-btn" type="button">Answer Now</button>
+      <button class="let-it-ring-btn" id="let-it-ring-btn" type="button">Let It Ring</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -768,6 +890,10 @@
         { questionText: "Is the intruder still inside?", answerText: "I heard footsteps a minute ago, so I think so." },
         { questionText: "Is anyone else in the house with you?", answerText: "No, I'm home alone right now." }
       ],
+      curveball: {
+        triggerAfterQuestion: 2,
+        eventText: "Wait — I hear something moving downstairs now!"
+      },
       correctVehicles: ["police"],
       vehicleETAs: { police: 4, fire: 9, ems: 7 }
     },
@@ -794,6 +920,10 @@
         { questionText: "Is he responsive to his name or touch?", answerText: "No, he's not responding at all." },
         { questionText: "Is he on any medication?", answerText: "Yes, blood pressure and heart medication." }
       ],
+      curveball: {
+        triggerAfterQuestion: 2,
+        eventText: "Wait — he just stopped breathing completely!"
+      },
       correctVehicles: ["ems"],
       vehicleETAs: { police: 6, fire: 5, ems: 4 }
     },
@@ -820,6 +950,11 @@
         { questionText: "Are there flammable items nearby, like gas cans?", answerText: "Yes, there's a propane tank stored in there." },
         { questionText: "Is the wind pushing the fire toward any homes?", answerText: "Yes, it's blowing right toward the house next door." }
       ],
+      curveball: {
+        triggerAfterQuestion: 2,
+        eventText: "Wait — the propane tank just started hissing, it could go any second!",
+        newUrgency: "High"
+      },
       correctVehicles: ["fire", "police"],
       vehicleETAs: { police: 6, fire: 4, ems: 8 }
     },
@@ -841,28 +976,64 @@
   // Duration (ms) each call's timer runs before an unmade dispatch auto-fails
   var TIMER_DURATIONS_MS = { Low: 30000, Medium: 20000, High: 12000 };
 
+  // How much of a call's TOTAL timer must remain before the bar turns
+  // yellow ("warning"). Higher urgency reads as urgent over more of the
+  // bar. The final 5 seconds are always red ("danger"), regardless of
+  // urgency — a curveball's newUrgency shifts this fraction without ever
+  // touching totalMs/remainingMs, which is how urgency bumps "speed up"
+  // the color feedback without adding or removing time.
+  var URGENCY_WARNING_FRACTION = { Low: 0.4, Medium: 0.5, High: 0.65 };
+
+  // Chance that answering a call in the eligible range (calls 2-5)
+  // triggers a second, overlapping call partway through.
+  var OVERLAP_CHANCE = 0.4;
+
   /* ======================================================
-     STATE — single source of truth, lives in JS only
+     STATE
+     ------------------------------------------------------
+     Per-call mutable state (which questions were asked, timer
+     progress, vehicle selection, curveball/overlap bookkeeping) lives
+     in a dedicated "call state" object — see createCallState — instead
+     of loose top-level fields. That's what makes a call pausable: to
+     hold Call A we just stop its interval and stash its whole object
+     in state.heldCall; resuming it is rebuilding the screen from that
+     same object, nothing is recomputed or lost.
   ====================================================== */
   var state = {
-    currentCallIndex: 0,
+    currentCallIndex: 0,   // the shift's primary call pointer (never the interrupting call)
+    activeCall: null,      // call state object currently on screen
+    heldCall: null,        // one paused call state object, or null
+    consumedIndices: {},   // callIndex -> true once fully resolved (played or auto-declined)
     streak: 0,
     bestStreak: 0,
     callsPerfect: 0,
     callsPartial: 0,
     callsWrong: 0,
     callsHandled: 0,
-    questionsUsed: [],               // per-call, one bool per follow-up question, resets each call
-    selectedVehicles: [],            // per-call, vehicle keys currently toggled on
-    callLocked: false,               // prevents double vehicle taps / double dispatch
     typewriterTimer: null,
     typewriterDone: false,
-    countdown: {                     // per-call countdown timer
-      totalMs: 0,
-      remainingMs: 0,
-      intervalId: null
-    }
+    overlapPendingAfterCurveball: false,  // overlap banner deferred until a curveball flash finishes
+    bannerLocked: false                    // guards rapid double-tap on the incoming-call banner
   };
+
+  function createCallState(callIndex) {
+    var call = CALLS[callIndex];
+    return {
+      callIndex: callIndex,
+      questionsUsed: call.followUpQuestions.map(function () { return false; }),
+      selectedVehicles: [],
+      vehicleSectionOpen: false,
+      callLocked: false,                     // true once dispatched or timed out (resolved)
+      effectiveUrgency: call.urgencyLevel,    // can change via a curveball's newUrgency
+      curveballFired: false,
+      curveballBusy: false,                  // true while the flash/highlight animation plays
+      willOverlap: false,
+      overlapDecided: false,
+      overlapTriggerAtRemainingMs: 0,
+      overlapShown: false,
+      countdown: { totalMs: 0, remainingMs: 0, intervalId: null }
+    };
+  }
 
   /* ======================================================
      DOM REFERENCES
@@ -879,9 +1050,11 @@
     endShiftBtn: document.getElementById("end-shift-btn"),
     callCounter: document.getElementById("call-counter"),
     streakIndicator: document.getElementById("streak-indicator"),
+    holdIndicator: document.getElementById("hold-indicator"),
     callerLabel: document.getElementById("caller-label"),
     transcriptBox: document.getElementById("transcript-box"),
     urgencyBadge: document.getElementById("urgency-badge"),
+    curveballSlot: document.getElementById("curveball-slot"),
     followupContainer: document.getElementById("followup-container"),
     questionsProgress: document.getElementById("questions-progress"),
     chooseVehicleBtn: document.getElementById("choose-vehicle-btn"),
@@ -892,9 +1065,10 @@
     timerWrap: document.getElementById("timer-wrap"),
     timerLabel: document.getElementById("timer-label"),
     timerBarFill: document.getElementById("timer-bar-fill"),
-    callPanelGroup: [
-      document.getElementById("call-panel")
-    ],
+    incomingCallBanner: document.getElementById("incoming-call-banner"),
+    incomingUrgencyBadge: document.getElementById("incoming-urgency-badge"),
+    answerNowBtn: document.getElementById("answer-now-btn"),
+    letItRingBtn: document.getElementById("let-it-ring-btn"),
     outcomeIcon: document.getElementById("outcome-icon"),
     outcomeTitle: document.getElementById("outcome-title"),
     outcomeMessage: document.getElementById("outcome-message"),
@@ -924,38 +1098,8 @@
     screens[name].classList.add("active");
   }
 
-  /* ======================================================
-     STATE MANAGEMENT
-  ====================================================== */
-  function resetShiftState() {
-    state.currentCallIndex = 0;
-    state.streak = 0;
-    state.bestStreak = 0;
-    state.callsPerfect = 0;
-    state.callsPartial = 0;
-    state.callsWrong = 0;
-    state.callsHandled = 0;
-    state.questionsUsed = [];
-    state.selectedVehicles = [];
-    state.callLocked = false;
-    clearTypewriter();
-    state.typewriterDone = false;
-    clearCountdownTimer();
-  }
-
-  function resetPerCallState(call) {
-    // One "asked" flag per follow-up question, all false at call start
-    state.questionsUsed = call.followUpQuestions.map(function () { return false; });
-    state.selectedVehicles = [];
-    state.callLocked = false;
-    clearTypewriter();
-    state.typewriterDone = false;
-    clearCountdownTimer();
-    hideCountdownTimer();
-  }
-
-  function questionsAskedCount() {
-    return state.questionsUsed.filter(Boolean).length;
+  function questionsAskedCount(cs) {
+    return cs.questionsUsed.filter(Boolean).length;
   }
 
   function clearTypewriter() {
@@ -966,52 +1110,114 @@
   }
 
   /* ======================================================
-     COUNTDOWN TIMER — starts once transcript finishes,
-     auto-fails the call ("Too Slow!") if it reaches 0.
+     STATE MANAGEMENT — SHIFT LEVEL
   ====================================================== */
-  function startCountdownTimer(call) {
-    var totalMs = TIMER_DURATIONS_MS[call.urgencyLevel];
-    state.countdown.totalMs = totalMs;
-    state.countdown.remainingMs = totalMs;
+  function resetShiftState() {
+    if (state.activeCall) stopCountdownInterval(state.activeCall);
+    if (state.heldCall) stopCountdownInterval(state.heldCall);
 
-    el.timerWrap.style.display = "block";
-    el.timerWrap.classList.remove("warning", "danger");
-    updateCountdownUI();
+    state.currentCallIndex = 0;
+    state.activeCall = null;
+    state.heldCall = null;
+    state.consumedIndices = {};
+    state.streak = 0;
+    state.bestStreak = 0;
+    state.callsPerfect = 0;
+    state.callsPartial = 0;
+    state.callsWrong = 0;
+    state.callsHandled = 0;
+    state.overlapPendingAfterCurveball = false;
+    state.bannerLocked = false;
 
-    clearCountdownTimer();
-    state.countdown.intervalId = setInterval(function () {
-      state.countdown.remainingMs -= 100;
-      if (state.countdown.remainingMs <= 0) {
-        state.countdown.remainingMs = 0;
-        updateCountdownUI();
-        clearCountdownTimer();
-        handleTimeout();
-        return;
-      }
-      updateCountdownUI();
+    clearTypewriter();
+    state.typewriterDone = false;
+    hideIncomingCallBanner();
+    updateHoldIndicator();
+  }
+
+  /* ======================================================
+     COUNTDOWN TIMER
+     ------------------------------------------------------
+     Each call state object owns its own countdown. Pausing a call is
+     nothing more than stopping ITS interval (stopCountdownInterval);
+     resuming it is starting that same interval again from wherever
+     remainingMs was left. The DOM is only ever touched for whichever
+     call state is currently state.activeCall.
+  ====================================================== */
+  function initCallTimer(cs) {
+    var call = CALLS[cs.callIndex];
+    cs.countdown.totalMs = TIMER_DURATIONS_MS[call.urgencyLevel];
+    cs.countdown.remainingMs = cs.countdown.totalMs;
+
+    // Decide, once, whether this call will get an interrupting second
+    // call. Only calls 2-5 (index 1-4) qualify, and never while another
+    // call is already on hold.
+    var eligible = cs.callIndex >= 1 && cs.callIndex <= 4 && !state.heldCall;
+    cs.willOverlap = eligible && Math.random() < OVERLAP_CHANCE;
+    cs.overlapDecided = true;
+    if (cs.willOverlap) {
+      // Fires once remainingMs drops to somewhere between 30%-60% of
+      // totalMs (i.e. roughly 40%-70% of the way through the call).
+      cs.overlapTriggerAtRemainingMs = cs.countdown.totalMs * (0.3 + Math.random() * 0.3);
+    }
+
+    startCountdownInterval(cs);
+  }
+
+  function startCountdownInterval(cs) {
+    stopCountdownInterval(cs); // defensive: never let two intervals run for one call
+    if (cs === state.activeCall) {
+      el.timerWrap.style.display = "block";
+      updateCountdownUI(cs);
+    }
+    cs.countdown.intervalId = setInterval(function () {
+      countdownTick(cs);
     }, 100);
   }
 
-  function updateCountdownUI() {
-    var total = state.countdown.totalMs;
-    var remaining = state.countdown.remainingMs;
+  // The one true "pause" — no time drains once this is called, because
+  // nothing keeps running to drain it.
+  function stopCountdownInterval(cs) {
+    if (cs.countdown.intervalId) {
+      clearInterval(cs.countdown.intervalId);
+      cs.countdown.intervalId = null;
+    }
+  }
+
+  function countdownTick(cs) {
+    cs.countdown.remainingMs -= 100;
+
+    if (cs.countdown.remainingMs <= 0) {
+      cs.countdown.remainingMs = 0;
+      if (cs === state.activeCall) updateCountdownUI(cs);
+      stopCountdownInterval(cs);
+      handleTimeout(cs);
+      return;
+    }
+
+    if (cs === state.activeCall) updateCountdownUI(cs);
+
+    // A held call's interval is stopped, so this can only ever run for
+    // whichever call is currently on screen — no extra guard needed.
+    if (cs.willOverlap && !cs.overlapShown && cs.countdown.remainingMs <= cs.overlapTriggerAtRemainingMs) {
+      attemptShowOverlapBanner(cs);
+    }
+  }
+
+  function updateCountdownUI(cs) {
+    var total = cs.countdown.totalMs;
+    var remaining = cs.countdown.remainingMs;
     var percent = total > 0 ? (remaining / total) * 100 : 0;
     var secondsLeft = Math.ceil(remaining / 1000);
 
     el.timerBarFill.style.width = percent + "%";
     el.timerLabel.textContent = "⏱ " + secondsLeft + "s";
 
+    var warningFraction = URGENCY_WARNING_FRACTION[cs.effectiveUrgency];
     var danger = remaining <= 5000;
-    var warning = !danger && remaining <= total * 0.5;
+    var warning = !danger && remaining <= total * warningFraction;
     el.timerWrap.classList.toggle("danger", danger);
     el.timerWrap.classList.toggle("warning", warning);
-  }
-
-  function clearCountdownTimer() {
-    if (state.countdown.intervalId) {
-      clearInterval(state.countdown.intervalId);
-      state.countdown.intervalId = null;
-    }
   }
 
   function hideCountdownTimer() {
@@ -1021,27 +1227,36 @@
 
   /* ======================================================
      RENDERING — CALL SCREEN
+     ------------------------------------------------------
+     Two entry points: a brand new call (renderFreshCall, with the
+     typewriter animation) and a call coming back off hold
+     (renderResumedCall, which snaps straight to exactly where the
+     player left it — no replaying the transcript, no losing progress).
   ====================================================== */
-  function renderCall() {
-    var call = CALLS[state.currentCallIndex];
-    resetPerCallState(call);
+  function beginCall(callIndex) {
+    var cs = createCallState(callIndex);
+    state.activeCall = cs;
+    renderFreshCall(cs);
+  }
 
-    el.callCounter.textContent = "Call " + (state.currentCallIndex + 1) + " of " + CALLS.length;
+  function renderFreshCall(cs) {
+    var call = CALLS[cs.callIndex];
+
+    el.callCounter.textContent = "Call " + (cs.callIndex + 1) + " of " + CALLS.length;
     el.streakIndicator.textContent = "🔥 Streak: " + state.streak;
     el.callerLabel.textContent = "Unknown Caller";
+    el.curveballSlot.innerHTML = "";
+    hideCountdownTimer();
+    updateHoldIndicator();
 
-    // Urgency badge
-    el.urgencyBadge.textContent = call.urgencyLevel;
-    el.urgencyBadge.className = "urgency-badge urgency-" + call.urgencyLevel.toLowerCase();
+    el.urgencyBadge.textContent = cs.effectiveUrgency;
+    el.urgencyBadge.className = "urgency-badge urgency-" + cs.effectiveUrgency.toLowerCase();
 
-    // Typewriter transcript
-    renderTypewriter(call.transcript);
+    renderTypewriter(cs, call.transcript);
 
-    // Follow-up questions — all 4 must be asked before dispatch unlocks
-    renderFollowUps(call);
-    updateQuestionsProgress(call, false);
+    renderFollowUps(cs, call);
+    updateQuestionsProgress(cs, call, false);
 
-    // Vehicle section hidden until "Choose Vehicle" tapped
     el.vehicleSection.classList.remove("reveal");
     el.vehicleSection.style.display = "none";
     el.chooseVehicleBtn.style.display = "block";
@@ -1054,7 +1269,52 @@
     setShiftInteractive(true);
   }
 
-  function renderTypewriter(text) {
+  function renderResumedCall(cs) {
+    var call = CALLS[cs.callIndex];
+
+    el.callCounter.textContent = "Call " + (cs.callIndex + 1) + " of " + CALLS.length;
+    el.streakIndicator.textContent = "🔥 Streak: " + state.streak;
+    el.callerLabel.textContent = "Unknown Caller";
+    updateHoldIndicator();
+
+    el.urgencyBadge.textContent = cs.effectiveUrgency;
+    el.urgencyBadge.className = "urgency-badge urgency-" + cs.effectiveUrgency.toLowerCase();
+
+    // The transcript already finished before this call was ever paused
+    el.transcriptBox.innerHTML = "";
+    el.transcriptBox.textContent = call.transcript;
+    el.transcriptBox.onclick = null;
+    state.typewriterDone = true;
+
+    el.curveballSlot.innerHTML = "";
+    if (cs.curveballFired && call.curveball) {
+      appendCurveballLine(call.curveball.eventText, false);
+    }
+
+    renderFollowUps(cs, call);
+    updateQuestionsProgress(cs, call, false);
+
+    if (cs.vehicleSectionOpen) {
+      renderVehicleOptions(cs, call);
+      el.vehicleSection.style.display = "block";
+      el.vehicleSection.classList.remove("reveal");
+      el.chooseVehicleBtn.style.display = "none";
+      updateConfirmButtonVisibility(cs);
+    } else {
+      el.vehicleSection.style.display = "none";
+      el.chooseVehicleBtn.style.display = "block";
+      el.confirmDispatchBtn.classList.remove("visible");
+    }
+    el.confirmDispatchBtn.disabled = false;
+    el.dispatchingOverlay.classList.remove("active");
+    setShiftInteractive(true);
+
+    el.timerWrap.style.display = "block";
+    updateCountdownUI(cs);
+    startCountdownInterval(cs); // resumes counting down from remainingMs — never resets
+  }
+
+  function renderTypewriter(cs, text) {
     el.transcriptBox.innerHTML = "";
     var span = document.createElement("span");
     var cursor = document.createElement("span");
@@ -1064,7 +1324,6 @@
 
     var i = 0;
     state.typewriterDone = false;
-    var call = CALLS[state.currentCallIndex];
 
     function finishNow() {
       clearTypewriter();
@@ -1072,7 +1331,7 @@
       state.typewriterDone = true;
       cursor.remove();
       // Countdown pressure only begins once the caller has finished talking
-      startCountdownTimer(call);
+      initCallTimer(cs);
     }
 
     state.typewriterTimer = setInterval(function () {
@@ -1091,30 +1350,33 @@
     };
   }
 
-  function renderFollowUps(call) {
+  function renderFollowUps(cs, call) {
     el.followupContainer.innerHTML = "";
     call.followUpQuestions.forEach(function (q, idx) {
       var wrapper = document.createElement("div");
+      var alreadyAsked = cs.questionsUsed[idx];
 
       var btn = document.createElement("button");
       btn.className = "followup-btn";
       btn.textContent = q.questionText;
       btn.type = "button";
+      btn.disabled = alreadyAsked;
 
       var answerDiv = document.createElement("div");
-      answerDiv.className = "followup-answer";
+      answerDiv.className = "followup-answer" + (alreadyAsked ? " revealed" : "");
       answerDiv.textContent = q.answerText;
 
       btn.addEventListener("click", function () {
         // Guard against double-clicks / double-reveals
-        if (state.questionsUsed[idx]) return;
-        state.questionsUsed[idx] = true;
+        if (cs.questionsUsed[idx]) return;
+        cs.questionsUsed[idx] = true;
         btn.disabled = true;
         // Force reflow then reveal for smooth transition
         requestAnimationFrame(function () {
           answerDiv.classList.add("revealed");
         });
-        updateQuestionsProgress(call, true);
+        updateQuestionsProgress(cs, call, true);
+        maybeFireCurveball(cs, call);
       });
 
       wrapper.appendChild(btn);
@@ -1125,9 +1387,9 @@
 
   // Updates the "Questions Asked: X/4" indicator and unlocks vehicle
   // dispatch once every follow-up question has been asked.
-  function updateQuestionsProgress(call, animateUnlock) {
+  function updateQuestionsProgress(cs, call, animateUnlock) {
     var total = call.followUpQuestions.length;
-    var asked = questionsAskedCount();
+    var asked = questionsAskedCount(cs);
     var allAsked = asked >= total;
 
     el.questionsProgress.textContent = "Questions Asked: " + asked + "/" + total;
@@ -1144,19 +1406,145 @@
     }
   }
 
-  // Vehicle buttons are multi-select toggles now — tapping one only
-  // adds/removes it from state.selectedVehicles. Nothing is locked in
-  // until "Confirm Dispatch" is tapped.
-  function renderVehicleOptions(call) {
+  /* ======================================================
+     CURVEBALL EVENTS
+     ------------------------------------------------------
+     Fires once a call's data defines a curveball and the player has
+     asked exactly triggerAfterQuestion questions. Never resets the
+     timer — an optional newUrgency only shifts effectiveUrgency,
+     which changes the color-pacing thresholds in updateCountdownUI.
+  ====================================================== */
+  function maybeFireCurveball(cs, call) {
+    if (!call.curveball || cs.curveballFired) return;
+    if (questionsAskedCount(cs) !== call.curveball.triggerAfterQuestion) return;
+    fireCurveball(cs, call);
+  }
+
+  function fireCurveball(cs, call) {
+    cs.curveballFired = true;
+    cs.curveballBusy = true;
+
+    if (call.curveball.newUrgency) {
+      cs.effectiveUrgency = call.curveball.newUrgency;
+      el.urgencyBadge.textContent = cs.effectiveUrgency;
+      el.urgencyBadge.className = "urgency-badge urgency-" + cs.effectiveUrgency.toLowerCase();
+      updateCountdownUI(cs); // re-color the bar for the new urgency; timer itself is untouched
+    }
+
+    appendCurveballLine(call.curveball.eventText, true);
+
+    setTimeout(function () {
+      cs.curveballBusy = false;
+      var line = el.curveballSlot.querySelector(".curveball-line");
+      if (line) line.classList.remove("flash");
+
+      // An overlap banner that wanted to show during the flash was held
+      // back — release it now that the animation is out of the way, so
+      // the two never stack on top of each other.
+      if (state.overlapPendingAfterCurveball) {
+        state.overlapPendingAfterCurveball = false;
+        attemptShowOverlapBanner(cs);
+      }
+    }, 900);
+  }
+
+  function appendCurveballLine(text, animate) {
+    el.curveballSlot.innerHTML = "";
+    var line = document.createElement("div");
+    line.className = "curveball-line" + (animate ? " flash" : "");
+    line.textContent = text;
+    el.curveballSlot.appendChild(line);
+  }
+
+  /* ======================================================
+     OVERLAPPING CALLS
+     ------------------------------------------------------
+     showOverlapBanner / handleAnswerNow / handleLetItRing implement
+     the "call waiting" interruption: pausing Call A's countdown and
+     swapping in Call B, or discarding B as an automatic WRONG.
+  ====================================================== */
+  function attemptShowOverlapBanner(cs) {
+    if (cs !== state.activeCall) return;
+    if (cs.callLocked) return;
+    if (state.heldCall) return;
+    if (cs.overlapShown) return;
+
+    if (cs.curveballBusy) {
+      // Curveball takes priority — defer until its flash animation ends
+      state.overlapPendingAfterCurveball = true;
+      return;
+    }
+    showOverlapBanner(cs);
+  }
+
+  function showOverlapBanner(cs) {
+    cs.overlapShown = true; // one opportunity per call, consumed either way it's resolved
+    var targetIndex = cs.callIndex + 1;
+    var targetCall = CALLS[targetIndex];
+
+    state.bannerLocked = false;
+    el.incomingUrgencyBadge.textContent = targetCall.urgencyLevel;
+    el.incomingUrgencyBadge.className = "urgency-badge urgency-" + targetCall.urgencyLevel.toLowerCase();
+
+    el.answerNowBtn.onclick = function () { handleAnswerNow(cs, targetIndex); };
+    el.letItRingBtn.onclick = function () { handleLetItRing(cs, targetIndex); };
+
+    el.incomingCallBanner.classList.add("visible");
+  }
+
+  function hideIncomingCallBanner() {
+    el.incomingCallBanner.classList.remove("visible");
+    el.answerNowBtn.onclick = null;
+    el.letItRingBtn.onclick = null;
+  }
+
+  function handleAnswerNow(cs, targetIndex) {
+    if (state.bannerLocked || cs.callLocked) return;
+    state.bannerLocked = true;
+    hideIncomingCallBanner();
+
+    // Pause call A exactly where it is — its interval stops, everything
+    // else in its call state object is left untouched for later resume.
+    stopCountdownInterval(cs);
+    state.heldCall = cs;
+    state.activeCall = null;
+
+    beginCall(targetIndex);
+  }
+
+  function handleLetItRing(cs, targetIndex) {
+    if (state.bannerLocked || cs.callLocked) return;
+    state.bannerLocked = true;
+    hideIncomingCallBanner();
+
+    // The ignored call is never played — it's an automatic WRONG.
+    // Call A itself was never paused; its own timer kept running underneath.
+    state.consumedIndices[targetIndex] = true;
+    state.callsHandled++;
+    state.callsWrong++;
+    state.streak = 0;
+  }
+
+  function updateHoldIndicator() {
+    el.holdIndicator.classList.toggle("visible", !!state.heldCall);
+  }
+
+  /* ======================================================
+     VEHICLE SELECTION (multi-select toggle)
+  ====================================================== */
+  function renderVehicleOptions(cs, call) {
     el.vehicleContainer.innerHTML = "";
     ["police", "fire", "ems"].forEach(function (key) {
+      var selected = cs.selectedVehicles.indexOf(key) !== -1;
+
       var btn = document.createElement("button");
-      btn.className = "vehicle-btn vehicle-" + key;
+      btn.className = "vehicle-btn vehicle-" + key + (selected ? " selected" : "");
       btn.type = "button";
+      btn.disabled = cs.callLocked;
 
       var checkSpan = document.createElement("span");
       checkSpan.className = "vehicle-check";
-      checkSpan.textContent = "☐";
+      checkSpan.textContent = selected ? "☑" : "☐";
 
       var nameSpan = document.createElement("span");
       nameSpan.textContent = VEHICLE_LABELS[key];
@@ -1173,34 +1561,33 @@
       btn.appendChild(etaSpan);
 
       btn.addEventListener("click", function () {
-        toggleVehicleSelection(key, btn, checkSpan);
+        toggleVehicleSelection(cs, key, btn, checkSpan);
       });
 
       el.vehicleContainer.appendChild(btn);
     });
   }
 
-  function toggleVehicleSelection(key, btn, checkSpan) {
+  function toggleVehicleSelection(cs, key, btn, checkSpan) {
     // Guard: selection can't change once dispatch is confirmed/locked
-    if (state.callLocked) return;
+    if (cs.callLocked) return;
 
-    var idx = state.selectedVehicles.indexOf(key);
+    var idx = cs.selectedVehicles.indexOf(key);
     if (idx === -1) {
-      state.selectedVehicles.push(key);
+      cs.selectedVehicles.push(key);
       btn.classList.add("selected");
       checkSpan.textContent = "☑";
     } else {
-      state.selectedVehicles.splice(idx, 1);
+      cs.selectedVehicles.splice(idx, 1);
       btn.classList.remove("selected");
       checkSpan.textContent = "☐";
     }
 
-    updateConfirmButtonVisibility();
+    updateConfirmButtonVisibility(cs);
   }
 
-  function updateConfirmButtonVisibility() {
-    var hasSelection = state.selectedVehicles.length > 0;
-    el.confirmDispatchBtn.classList.toggle("visible", hasSelection);
+  function updateConfirmButtonVisibility(cs) {
+    el.confirmDispatchBtn.classList.toggle("visible", cs.selectedVehicles.length > 0);
   }
 
   function setShiftInteractive(enabled) {
@@ -1208,18 +1595,40 @@
   }
 
   /* ======================================================
-     EVENT HANDLING — CONFIRM DISPATCH
+     EVENT HANDLING — CHOOSE VEHICLE / CONFIRM DISPATCH
   ====================================================== */
+  var chooseVehicleLocked = false;
+  function handleChooseVehicle() {
+    if (chooseVehicleLocked) return;
+    chooseVehicleLocked = true;
+    setTimeout(function () { chooseVehicleLocked = false; }, 350);
+
+    var cs = state.activeCall;
+    if (!cs) return;
+    var call = CALLS[cs.callIndex];
+
+    // Defense in depth: block dispatch until all follow-up questions are asked,
+    // even if this somehow fires while the button's disabled attribute is stale.
+    if (questionsAskedCount(cs) < call.followUpQuestions.length) return;
+
+    cs.vehicleSectionOpen = true;
+    renderVehicleOptions(cs, call);
+    el.vehicleSection.style.display = "block";
+    el.vehicleSection.classList.add("reveal");
+    el.chooseVehicleBtn.style.display = "none";
+  }
+
   function handleConfirmDispatch() {
+    var cs = state.activeCall;
     // Guard: prevent double submission / rapid double-tap, and require
     // at least one vehicle selected (button is hidden otherwise, but
     // this covers any stale-DOM edge case)
-    if (state.callLocked) return;
-    if (state.selectedVehicles.length === 0) return;
-    state.callLocked = true;
+    if (!cs || cs.callLocked) return;
+    if (cs.selectedVehicles.length === 0) return;
+    cs.callLocked = true;
 
     // Selection is locked in — stop the clock and freeze the buttons
-    clearCountdownTimer();
+    stopCountdownInterval(cs);
     var vehicleButtons = el.vehicleContainer.querySelectorAll(".vehicle-btn");
     vehicleButtons.forEach(function (b) { b.disabled = true; });
     el.chooseVehicleBtn.disabled = true;
@@ -1229,29 +1638,27 @@
     // Show "Dispatching..." loading state
     el.dispatchingOverlay.classList.add("active");
 
-    var call = CALLS[state.currentCallIndex];
-    var selected = state.selectedVehicles.slice();
+    var call = CALLS[cs.callIndex];
+    var selected = cs.selectedVehicles.slice();
     var tier = scoreDispatch(selected, call.correctVehicles);
 
     setTimeout(function () {
-      finalizeOutcome(call, selected, tier, false);
+      resolveCall(cs, selected, tier, false);
     }, 1000);
   }
 
   /* ======================================================
      EVENT HANDLING — TIMEOUT ("Too Slow!")
   ====================================================== */
-  function handleTimeout() {
+  function handleTimeout(cs) {
     // Guard: a stray tick firing after dispatch was already confirmed
-    if (state.callLocked) return;
-    state.callLocked = true;
+    if (cs.callLocked) return;
+    cs.callLocked = true;
+    stopCountdownInterval(cs);
 
-    clearCountdownTimer();
-
-    var call = CALLS[state.currentCallIndex];
     // Whatever was selected (or not) doesn't matter — running out the
     // clock always grades as WRONG, per spec.
-    finalizeOutcome(call, state.selectedVehicles.slice(), "WRONG", true);
+    resolveCall(cs, cs.selectedVehicles.slice(), "WRONG", true);
   }
 
   /* ======================================================
@@ -1267,7 +1674,8 @@
     return "PARTIAL";
   }
 
-  function finalizeOutcome(call, selected, tier, isTimeout) {
+  function resolveCall(cs, selected, tier, isTimeout) {
+    state.consumedIndices[cs.callIndex] = true;
     state.callsHandled++;
 
     if (tier === "PERFECT") {
@@ -1282,6 +1690,12 @@
       state.streak = 0;
     }
 
+    // A stale incoming-call banner (never answered or declined) shouldn't
+    // survive into the outcome screen — the call it belonged to just fell
+    // back to being an ordinary, not-yet-played call.
+    hideIncomingCallBanner();
+
+    var call = CALLS[cs.callIndex];
     renderOutcome(call, selected, tier, isTimeout);
     showScreen("outcome");
   }
@@ -1343,8 +1757,15 @@
     void el.outcomeIcon.offsetWidth;
     el.outcomeIcon.style.animation = "";
 
-    var isLastCall = state.currentCallIndex === CALLS.length - 1;
-    el.nextCallBtn.textContent = isLastCall ? "Finish Shift" : "Next Call";
+    // What "Next Call" does next depends on whether a call is waiting
+    // to be resumed, whether more unconsumed calls remain, or it's over.
+    if (state.heldCall) {
+      el.nextCallBtn.textContent = "Return to Held Call";
+    } else if (nextUnconsumedIndex(state.currentCallIndex) >= CALLS.length) {
+      el.nextCallBtn.textContent = "Finish Shift";
+    } else {
+      el.nextCallBtn.textContent = "Next Call";
+    }
   }
 
   function spawnConfetti() {
@@ -1366,8 +1787,19 @@
   }
 
   /* ======================================================
-     EVENT HANDLING — NEXT CALL / FINISH SHIFT
+     CALL PROGRESSION
+     ------------------------------------------------------
+     nextUnconsumedIndex skips any call already resolved out of
+     order — either played early as an interruption, or auto-declined
+     via "Let It Ring" — so the shift always ends after exactly
+     CALLS.length calls, regardless of how many overlaps happened.
   ====================================================== */
+  function nextUnconsumedIndex(fromIndex) {
+    var i = fromIndex + 1;
+    while (i < CALLS.length && state.consumedIndices[i]) i++;
+    return i;
+  }
+
   var nextCallLocked = false;
   function handleNextCall() {
     // Guard against rapid double-tap
@@ -1375,35 +1807,27 @@
     nextCallLocked = true;
     setTimeout(function () { nextCallLocked = false; }, 350);
 
-    var isLastCall = state.currentCallIndex === CALLS.length - 1;
-    if (isLastCall) {
+    if (state.heldCall) {
+      resumeHeldCall();
+      return;
+    }
+
+    var next = nextUnconsumedIndex(state.currentCallIndex);
+    if (next >= CALLS.length) {
       goToSummary();
     } else {
-      state.currentCallIndex++;
+      state.currentCallIndex = next;
       showScreen("shift");
-      renderCall();
+      beginCall(next);
     }
   }
 
-  /* ======================================================
-     EVENT HANDLING — CHOOSE VEHICLE BUTTON
-  ====================================================== */
-  var chooseVehicleLocked = false;
-  function handleChooseVehicle() {
-    if (chooseVehicleLocked) return;
-    chooseVehicleLocked = true;
-    setTimeout(function () { chooseVehicleLocked = false; }, 350);
-
-    var call = CALLS[state.currentCallIndex];
-
-    // Defense in depth: block dispatch until all follow-up questions are asked,
-    // even if this somehow fires while the button's disabled attribute is stale.
-    if (questionsAskedCount() < call.followUpQuestions.length) return;
-
-    renderVehicleOptions(call);
-    el.vehicleSection.style.display = "block";
-    el.vehicleSection.classList.add("reveal");
-    el.chooseVehicleBtn.style.display = "none";
+  function resumeHeldCall() {
+    var cs = state.heldCall;
+    state.heldCall = null;
+    state.activeCall = cs;
+    showScreen("shift");
+    renderResumedCall(cs);
   }
 
   /* ======================================================
@@ -1417,7 +1841,7 @@
 
     resetShiftState();
     showScreen("shift");
-    renderCall();
+    beginCall(0);
   }
 
   var endShiftLocked = false;
@@ -1427,7 +1851,20 @@
     setTimeout(function () { endShiftLocked = false; }, 350);
 
     clearTypewriter();
-    clearCountdownTimer();
+    if (state.activeCall) stopCountdownInterval(state.activeCall);
+
+    // A held call was mid-way through being handled when the shift ended —
+    // count it as an unanswered WRONG rather than silently dropping it.
+    if (state.heldCall) {
+      stopCountdownInterval(state.heldCall);
+      state.consumedIndices[state.heldCall.callIndex] = true;
+      state.callsHandled++;
+      state.callsWrong++;
+      state.streak = 0;
+      state.heldCall = null;
+    }
+
+    hideIncomingCallBanner();
     goToSummary();
   }
 
