@@ -695,41 +695,122 @@
     opacity: 0.6;
   }
 
-  .dispatching-overlay {
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    flex: 1;
-    gap: 10px;
+  /* ======================================================
+     MINI-MAP DISPATCH SCREEN
+  ====================================================== */
+  #map-screen {
+    padding: 16px 16px 20px;
   }
 
-  .dispatching-overlay.active {
+  .map-header {
     display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
   }
 
-  .dispatching-text {
-    font-size: 1.3rem;
+  .map-title {
     font-weight: 900;
+    font-size: 1.1rem;
     color: var(--text);
   }
 
-  .dots span {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin: 0 4px;
-    background: var(--red-dark);
-    border-radius: 50%;
-    animation: dotBounce 1s infinite ease-in-out;
+  .map-skip-btn {
+    background: var(--surface-2);
+    color: var(--text-dim);
+    font-weight: bold;
+    font-size: 0.85rem;
+    padding: 8px 14px;
+    border-radius: 14px;
+    min-height: 40px;
   }
 
-  .dots span:nth-child(2) { animation-delay: 0.15s; }
-  .dots span:nth-child(3) { animation-delay: 0.3s; }
+  .map-wrap {
+    position: relative;
+    flex: 1;
+    min-height: 380px;
+    background: var(--surface);
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    overflow: hidden;
+  }
 
-  @keyframes dotBounce {
-    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-    40% { transform: translateY(-10px); opacity: 1; }
+  .map-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-road {
+    stroke: rgba(77,159,255,0.22);
+    stroke-width: 1.6;
+  }
+
+  .map-hq-dot { fill: var(--red-dark); }
+  .map-call-dot { fill: #ffd60a; }
+
+  .map-marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    font-size: 1.7rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  }
+
+  .map-call-marker {
+    animation: mapPulseMarker 1.3s ease-in-out infinite;
+  }
+
+  @keyframes mapPulseMarker {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.18); }
+  }
+
+  .map-vehicles {
+    position: absolute;
+    inset: 0;
+  }
+
+  .map-vehicle {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translate(-50%, -50%);
+    transition-property: left, top;
+    transition-timing-function: linear;
+  }
+
+  .map-vehicle-icon {
+    font-size: 1.9rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.6));
+  }
+
+  .map-vehicle-eta {
+    font-size: 0.65rem;
+    font-weight: 900;
+    color: white;
+    background: rgba(0,0,0,0.55);
+    padding: 1px 7px;
+    border-radius: 8px;
+    margin-top: 2px;
+    white-space: nowrap;
+  }
+
+  .map-vehicle.arrived .map-vehicle-icon {
+    animation: mapArrivedPulse 500ms ease;
+  }
+
+  .map-vehicle.arrived .map-vehicle-eta {
+    background: rgba(34,197,94,0.9);
+    color: #0a2e18;
+  }
+
+  @keyframes mapArrivedPulse {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.55); }
+    100% { transform: scale(1); }
   }
 
   /* ======================================================
@@ -1034,9 +1115,29 @@
       <button class="confirm-dispatch-btn" id="confirm-dispatch-btn" type="button">Confirm Dispatch</button>
     </div>
 
-    <div class="dispatching-overlay" id="dispatching-overlay">
-      <div class="dispatching-text">Dispatching</div>
-      <div class="dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <!-- ======================================================
+       SCREEN: MINI-MAP DISPATCH
+  ====================================================== -->
+  <div id="map-screen" class="screen">
+    <div class="map-header">
+      <div class="map-title">🗺️ Dispatching...</div>
+      <button class="map-skip-btn" id="map-skip-btn" type="button">Skip &gt;&gt;</button>
+    </div>
+    <div class="map-wrap" id="map-wrap">
+      <svg class="map-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <line class="map-road" x1="0" y1="30" x2="100" y2="30" />
+        <line class="map-road" x1="0" y1="62" x2="100" y2="62" />
+        <line class="map-road" x1="22" y1="0" x2="22" y2="100" />
+        <line class="map-road" x1="50" y1="0" x2="50" y2="100" />
+        <line class="map-road" x1="78" y1="0" x2="78" y2="100" />
+        <circle class="map-hq-dot" cx="15" cy="18" r="3.2" />
+        <circle class="map-call-dot" id="map-call-dot" cx="82" cy="74" r="3.2" />
+      </svg>
+      <div class="map-marker map-hq-marker" id="map-hq-marker" style="left:15%; top:18%;">🚨</div>
+      <div class="map-marker map-call-marker" id="map-call-marker" style="left:82%; top:74%;">📍</div>
+      <div class="map-vehicles" id="map-vehicles"></div>
     </div>
   </div>
 
@@ -1273,12 +1374,12 @@
   // rankIndex: the RANKS index a player must have reached for this
   // vehicle to be offered at all. The base three are always available.
   var VEHICLE_TYPES = {
-    police: { label: "🚓 Police", rankIndex: 0 },
-    fire: { label: "🚒 Fire", rankIndex: 0 },
-    ems: { label: "🚑 EMS", rankIndex: 0 },
-    swat: { label: "🛡️ SWAT", rankIndex: 2 },
-    fbi: { label: "🕵️ FBI", rankIndex: 3 },
-    army: { label: "🎖️ Army", rankIndex: 4 }
+    police: { label: "🚓 Police", emoji: "🚓", rankIndex: 0 },
+    fire: { label: "🚒 Fire", emoji: "🚒", rankIndex: 0 },
+    ems: { label: "🚑 EMS", emoji: "🚑", rankIndex: 0 },
+    swat: { label: "🛡️ SWAT", emoji: "🛡️", rankIndex: 2 },
+    fbi: { label: "🕵️ FBI", emoji: "🕵️", rankIndex: 3 },
+    army: { label: "🎖️ Army", emoji: "🎖️", rankIndex: 4 }
   };
 
   // Paycheck payout per outcome tier. Held/declined/timed-out calls all
@@ -1408,6 +1509,7 @@
   var screens = {
     home: document.getElementById("home-screen"),
     shift: document.getElementById("shift-screen"),
+    map: document.getElementById("map-screen"),
     outcome: document.getElementById("outcome-screen"),
     summary: document.getElementById("summary-screen"),
     rank: document.getElementById("rank-screen")
@@ -1439,7 +1541,11 @@
     vehicleSection: document.getElementById("vehicle-section"),
     vehicleContainer: document.getElementById("vehicle-container"),
     confirmDispatchBtn: document.getElementById("confirm-dispatch-btn"),
-    dispatchingOverlay: document.getElementById("dispatching-overlay"),
+    mapSkipBtn: document.getElementById("map-skip-btn"),
+    mapHqMarker: document.getElementById("map-hq-marker"),
+    mapCallMarker: document.getElementById("map-call-marker"),
+    mapCallDot: document.getElementById("map-call-dot"),
+    mapVehiclesLayer: document.getElementById("map-vehicles"),
     timerWrap: document.getElementById("timer-wrap"),
     timerLabel: document.getElementById("timer-label"),
     timerBarFill: document.getElementById("timer-bar-fill"),
@@ -1487,6 +1593,7 @@
   function resetShiftState() {
     if (state.activeCall) stopCountdownInterval(state.activeCall);
     if (state.heldCall) stopCountdownInterval(state.heldCall);
+    cleanupMapAnimation(); // defensive: no leftover map timers carrying into the next shift
 
     // Note: player.money and player.rankIndex are NOT touched here —
     // they persist across shifts (this-session-only, no reload survival).
@@ -1643,7 +1750,6 @@
     el.confirmDispatchBtn.classList.remove("visible");
     el.confirmDispatchBtn.disabled = false;
 
-    el.dispatchingOverlay.classList.remove("active");
     setShiftInteractive(true);
   }
 
@@ -1684,7 +1790,6 @@
       el.confirmDispatchBtn.classList.remove("visible");
     }
     el.confirmDispatchBtn.disabled = false;
-    el.dispatchingOverlay.classList.remove("active");
     setShiftInteractive(true);
 
     el.timerWrap.style.display = "block";
@@ -2016,16 +2121,170 @@
     el.confirmDispatchBtn.disabled = true;
     el.confirmDispatchBtn.classList.remove("visible");
 
-    // Show "Dispatching..." loading state
-    el.dispatchingOverlay.classList.add("active");
-
     var call = state.shiftCalls[cs.callIndex];
     var selected = cs.selectedVehicles.slice();
     var tier = scoreDispatch(selected, call.correctVehicles);
 
-    setTimeout(function () {
-      resolveCall(cs, selected, tier, false);
-    }, 1000);
+    // Hand off to the mini-map screen — it calls resolveCall itself once
+    // every vehicle has arrived (or the player skips ahead).
+    showScreen("map");
+    startMapAnimation(cs, call, selected, tier);
+  }
+
+  /* ======================================================
+     MINI-MAP DISPATCH ANIMATION
+     ------------------------------------------------------
+     Purely presentational — it never touches score/streak/paycheck
+     state. Its only job is to show the confirmed vehicles traveling
+     from HQ to the call marker, then hand off to resolveCall exactly
+     once (via mapSession.onFinish), whether that's because every
+     vehicle arrived or the player tapped Skip. Kept in its own
+     section so pacing/visuals can be retuned without touching the
+     call or scoring logic above.
+  ====================================================== */
+  var MAP_HQ_POS = { x: 15, y: 18 };
+  var MAP_CALL_SPOTS = [
+    { x: 82, y: 74 },
+    { x: 78, y: 20 },
+    { x: 40, y: 84 },
+    { x: 62, y: 40 }
+  ];
+  var MAP_MIN_DURATION_S = 1.8;
+  var MAP_MAX_DURATION_S = 4.2;
+  var MAP_ETA_SCALE = 4;          // eta minutes / this = animation seconds, before clamping
+  var MAP_ARRIVE_HOLD_MS = 550;   // pause after the last arrival so "Arrived!" is readable
+
+  var mapSession = null; // { finished, tickInterval, vehicles: [...], onFinish }
+
+  function startMapAnimation(cs, call, selected, tier) {
+    cleanupMapAnimation(); // guard: never let two sessions run at once
+
+    el.mapVehiclesLayer.innerHTML = "";
+
+    // A different call location most times, so the map isn't static —
+    // HQ, by contrast, is always the same fixed corner.
+    var callSpot = MAP_CALL_SPOTS[Math.floor(Math.random() * MAP_CALL_SPOTS.length)];
+    el.mapHqMarker.style.left = MAP_HQ_POS.x + "%";
+    el.mapHqMarker.style.top = MAP_HQ_POS.y + "%";
+    el.mapCallMarker.style.left = callSpot.x + "%";
+    el.mapCallMarker.style.top = callSpot.y + "%";
+    el.mapCallDot.setAttribute("cx", callSpot.x);
+    el.mapCallDot.setAttribute("cy", callSpot.y);
+
+    var session = { finished: false, tickInterval: null, vehicles: [] };
+    mapSession = session;
+
+    selected.forEach(function (key, idx) {
+      var etaMinutes = call.vehicleETAs[key];
+      var durationS = Math.min(MAP_MAX_DURATION_S, Math.max(MAP_MIN_DURATION_S, etaMinutes / MAP_ETA_SCALE));
+
+      // Per-vehicle offset so 2-3 icons dispatched together stay visibly
+      // separate, both leaving HQ and arriving at the call marker.
+      var jitter = idx - (selected.length - 1) / 2;
+      var startX = MAP_HQ_POS.x + jitter * 6;
+      var startY = MAP_HQ_POS.y + jitter * 3;
+      var endX = callSpot.x + jitter * 7;
+      var endY = callSpot.y - jitter * 4;
+
+      var wrap = document.createElement("div");
+      wrap.className = "map-vehicle";
+      wrap.style.left = startX + "%";
+      wrap.style.top = startY + "%";
+      wrap.style.transitionDuration = durationS + "s";
+
+      var iconSpan = document.createElement("span");
+      iconSpan.className = "map-vehicle-icon";
+      iconSpan.textContent = VEHICLE_TYPES[key].emoji;
+
+      var etaSpan = document.createElement("span");
+      etaSpan.className = "map-vehicle-eta";
+      etaSpan.textContent = Math.ceil(durationS) + "s";
+
+      wrap.appendChild(iconSpan);
+      wrap.appendChild(etaSpan);
+      el.mapVehiclesLayer.appendChild(wrap);
+
+      var vehicle = { wrapEl: wrap, etaEl: etaSpan, durationMs: durationS * 1000, startTime: null, arrived: false };
+      session.vehicles.push(vehicle);
+
+      wrap.addEventListener("transitionend", function (e) {
+        if (e.propertyName !== "left") return; // left/top fire together; act once
+        markVehicleArrived(session, vehicle);
+      });
+
+      // Two rAFs so the browser paints the start position first — without
+      // this the transition has nothing to animate FROM and just snaps.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          if (session.finished) return;
+          vehicle.startTime = performance.now();
+          wrap.style.left = endX + "%";
+          wrap.style.top = endY + "%";
+        });
+      });
+    });
+
+    session.tickInterval = setInterval(function () {
+      tickMapCountdowns(session);
+    }, 150);
+
+    session.onFinish = function () {
+      finishMapAnimation(session, cs, selected, tier);
+    };
+  }
+
+  function tickMapCountdowns(session) {
+    if (session.finished) return;
+    var now = performance.now();
+    session.vehicles.forEach(function (v) {
+      if (v.arrived || v.startTime === null) return;
+      var remainingMs = Math.max(0, v.durationMs - (now - v.startTime));
+      v.etaEl.textContent = Math.ceil(remainingMs / 1000) + "s";
+    });
+  }
+
+  function markVehicleArrived(session, vehicle) {
+    if (session.finished || vehicle.arrived) return;
+    vehicle.arrived = true;
+    vehicle.wrapEl.classList.add("arrived");
+    vehicle.etaEl.textContent = "Arrived!";
+
+    var allArrived = session.vehicles.every(function (v) { return v.arrived; });
+    if (allArrived) {
+      setTimeout(function () {
+        if (!session.finished) session.onFinish();
+      }, MAP_ARRIVE_HOLD_MS);
+    }
+  }
+
+  // The single exit path from the map screen — reached either by every
+  // vehicle arriving naturally or by the player tapping Skip. Either way
+  // it runs exactly once (guarded by session.finished) and hands off to
+  // the unchanged scoring/outcome flow.
+  function finishMapAnimation(session, cs, selected, tier) {
+    if (session.finished) return;
+    session.finished = true;
+    if (session.tickInterval) clearInterval(session.tickInterval);
+    mapSession = null;
+    resolveCall(cs, selected, tier, false);
+  }
+
+  function cleanupMapAnimation() {
+    if (!mapSession) return;
+    mapSession.finished = true;
+    if (mapSession.tickInterval) clearInterval(mapSession.tickInterval);
+    mapSession = null;
+  }
+
+  var mapSkipLocked = false;
+  function handleMapSkip() {
+    // Guard: rapid double-tap can't double-transition to the outcome screen
+    if (mapSkipLocked) return;
+    mapSkipLocked = true;
+    setTimeout(function () { mapSkipLocked = false; }, 350);
+
+    if (!mapSession || mapSession.finished) return;
+    mapSession.onFinish();
   }
 
   /* ======================================================
@@ -2517,6 +2776,7 @@
   el.endShiftBtn.addEventListener("click", handleEndShift);
   el.chooseVehicleBtn.addEventListener("click", handleChooseVehicle);
   el.confirmDispatchBtn.addEventListener("click", handleConfirmDispatch);
+  el.mapSkipBtn.addEventListener("click", handleMapSkip);
   el.nextCallBtn.addEventListener("click", handleNextCall);
   el.collectMoneyBtn.addEventListener("click", handleCollectMoney);
   el.backHomeBtn.addEventListener("click", handleBackHome);
