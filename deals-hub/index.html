@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Deals Hub</title>
+<meta name="description" content="Deals Hub — cheap finds from real retailers. The good stuff, minus the markup.">
+<meta name="theme-color" content="#f6f2ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f2ea;
+    --card: #ffffff;
+    --ink: #1c1a17;
+    --muted: #6b655c;
+    --line: #e4ddd0;
+    --accent: #d9482b;
+    --accent-ink: #ffffff;
+    --chip: #ece5d8;
+    --good: #2f7a4f;
+    --radius: 16px;
+    --tile-style: linear-gradient(135deg, #ffd6e0, #ffb5c8);
+    --tile-home: linear-gradient(135deg, #ffe8c2, #f9cf8a);
+    --tile-tech: linear-gradient(135deg, #d4e4ff, #a9c6ff);
+    --tile-active: linear-gradient(135deg, #cdf2dc, #93dfb2);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #151412; --card: #201e1b; --ink: #f3efe7; --muted: #a59e92;
+      --line: #34302a; --chip: #2b2823; --accent: #ff6a4a; --good: #6fd19a;
+      --tile-style: linear-gradient(135deg, #5a2a38, #7a3349);
+      --tile-home: linear-gradient(135deg, #5a4220, #7a5a24);
+      --tile-tech: linear-gradient(135deg, #22385e, #2d4d84);
+      --tile-active: linear-gradient(135deg, #1f4a33, #2a6a47);
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font: 15px/1.5 Inter, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 16px; }
+
+  /* Header */
+  header { padding: 28px 0 8px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .logo { font: 800 34px/1 Fraunces, Georgia, serif; letter-spacing: -0.02em; margin: 0; }
+  .logo span { color: var(--accent); }
+  .tagline { margin: 8px 0 0; color: var(--muted); font-size: 16px; }
+
+  /* Controls */
+  .controls {
+    position: sticky; top: 0; z-index: 5;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    padding: 12px 0; border-bottom: 1px solid var(--line);
+  }
+  .search {
+    width: 100%; padding: 12px 14px 12px 40px; font: inherit; font-size: 16px;
+    border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--ink);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='8' cy='8' r='6'/%3E%3Cpath d='m17 17-4.5-4.5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: 13px center;
+  }
+  .search:focus, select:focus, input[type=range]:focus-visible, .chip:focus-visible, .btn:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none; border: 1px solid transparent; background: var(--chip); color: var(--ink);
+    padding: 8px 14px; border-radius: 999px; font: 600 14px Inter, sans-serif; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+  .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding-top: 10px; }
+  .price-filter { flex: 1 1 200px; display: flex; align-items: center; gap: 10px; }
+  .price-filter label { font-size: 13px; color: var(--muted); white-space: nowrap; }
+  .price-filter output { font-weight: 700; min-width: 44px; text-align: right; }
+  input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+  select {
+    font: 600 14px Inter, sans-serif; padding: 8px 10px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  }
+  .count { font-size: 13px; color: var(--muted); padding: 14px 0 4px; }
+
+  /* Grid */
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 8px 0 32px; }
+  @media (min-width: 720px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; } }
+  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .tile {
+    position: relative; aspect-ratio: 1 / 1; display: grid; place-items: center;
+    font-size: 56px; line-height: 1;
+  }
+  .tile[data-cat="Style"] { background: var(--tile-style); }
+  .tile[data-cat="Home"] { background: var(--tile-home); }
+  .tile[data-cat="Tech"] { background: var(--tile-tech); }
+  .tile[data-cat="Active"] { background: var(--tile-active); }
+  .badge {
+    position: absolute; top: 10px; left: 10px; background: var(--accent); color: var(--accent-ink);
+    font: 700 12px Inter, sans-serif; padding: 4px 8px; border-radius: 999px;
+  }
+  .cat-label {
+    position: absolute; bottom: 10px; left: 10px; font: 600 11px Inter, sans-serif;
+    text-transform: uppercase; letter-spacing: .06em; color: #1c1a17;
+    background: rgba(255,255,255,.75); padding: 3px 7px; border-radius: 6px;
+  }
+  .body { padding: 12px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .name { font: 600 15px/1.3 Inter, sans-serif; margin: 0; }
+  .retailer { font-size: 12px; color: var(--muted); }
+  .take { font-size: 13px; color: var(--muted); margin: 0; }
+  .prices { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+  .now { font: 800 20px Fraunces, Georgia, serif; }
+  .was { color: var(--muted); text-decoration: line-through; font-size: 14px; }
+  .checked { font-size: 11px; color: var(--muted); }
+  .btn {
+    display: block; text-align: center; text-decoration: none; margin-top: 8px;
+    background: var(--ink); color: var(--bg); font: 700 14px Inter, sans-serif;
+    padding: 11px 10px; border-radius: 10px;
+  }
+  .btn:hover { background: var(--accent); color: var(--accent-ink); }
+  .reviews { font-size: 12px; text-align: center; color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+
+  .empty { grid-column: 1 / -1; text-align: center; padding: 48px 16px; color: var(--muted); }
+  .empty button { margin-top: 10px; }
+
+  footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: 13px; }
+  footer p { margin: 0 0 8px; max-width: 70ch; }
+  footer strong { color: var(--ink); }
+
+  @media (max-width: 719px) { .controls { position: static; } }
+  @media (max-width: 420px) {
+    .logo { font-size: 30px; }
+    .tile { font-size: 46px; }
+    .body { padding: 10px; }
+    .name { font-size: 14px; }
+    .now { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <div class="brand">
+    <h1 class="logo">Deals<span>Hub</span></h1>
+  </div>
+  <p class="tagline">The good stuff, minus the markup.</p>
+</header>
+
+<div class="controls">
+  <div class="wrap">
+    <input id="q" class="search" type="search" placeholder="Search products or stores" aria-label="Search products or stores" autocomplete="off">
+    <div class="chips" role="group" aria-label="Category">
+      <button class="chip" data-cat="All" aria-pressed="true">All</button>
+      <button class="chip" data-cat="Style" aria-pressed="false">Style</button>
+      <button class="chip" data-cat="Home" aria-pressed="false">Home</button>
+      <button class="chip" data-cat="Tech" aria-pressed="false">Tech</button>
+      <button class="chip" data-cat="Active" aria-pressed="false">Active</button>
+    </div>
+    <div class="row">
+      <div class="price-filter">
+        <label for="max">Max price</label>
+        <input id="max" type="range" min="5" max="50" step="1" value="50">
+        <output id="maxOut" for="max">$50</output>
+      </div>
+      <select id="sort" aria-label="Sort by">
+        <option value="featured">Featured</option>
+        <option value="low">Price: low to high</option>
+        <option value="high">Price: high to low</option>
+        <option value="discount">Biggest discount</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<main class="wrap">
+  <p class="count" id="count" aria-live="polite"></p>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer class="wrap">
+  <p><strong>Heads up:</strong> prices and availability change fast. Always confirm the price on the retailer's site before you buy.</p>
+  <p>Deals Hub doesn't sell anything. Every "View deal" button takes you to the retailer's own page. Product photos, descriptions, and reviews belong to the retailers and live on their sites.</p>
+  <p id="disclosure">Some links may be affiliate links, which means we may earn a small commission if you buy something, at no extra cost to you.</p>
+</footer>
+
+<script>
+/* ---------- Money settings ----------
+   Paste your affiliate IDs here once you're approved for a program.
+   Leave blank and links work normally. */
+const AFFILIATE = {
+  amazonTag: "",          // e.g. "dealshub-20" from Amazon Associates
+};
+
+/* ---------- Product data ----------
+   Links go to each retailer's own search page for the item, so they never break.
+   Prices are typical sale prices; re-check each one and update `checked` before sharing.
+   `take` is our own one-line note — never paste the retailer's description or reviews. */
+const products = [
+  // Style
+  { name: "Ribbed Knit Tank Top", price: 6.99, was: 12.99, category: "Style", retailer: "Shein", emoji: "👚",
+    take: "A basic that layers under everything.", url: "https://us.shein.com/pdsearch/ribbed%20knit%20tank%20top/", checked: "2026-10-12", featured: 1 },
+  { name: "Oversized Crewneck Sweatshirt", price: 14.99, was: 24.99, category: "Style", retailer: "Walmart", emoji: "🧥",
+    take: "Cozy fit for cold mornings.", url: "https://www.walmart.com/search?q=oversized+crewneck+sweatshirt", checked: "2026-10-12", featured: 5 },
+  { name: "Gold Hoop Earrings Set", price: 4.98, was: 9.99, category: "Style", retailer: "Temu", emoji: "💛",
+    take: "Several sizes in one pack.", url: "https://www.temu.com/search_result.html?search_key=gold%20hoop%20earrings%20set", checked: "2026-10-12", featured: 9 },
+  { name: "Canvas Tote Bag", price: 10.00, was: null, category: "Style", retailer: "Target", emoji: "👜",
+    take: "Fits a laptop, books, and snacks.", url: "https://www.target.com/s?searchTerm=canvas+tote+bag", checked: "2026-10-12", featured: 13 },
+
+  // Home
+  { name: "LED Strip Lights (16 ft)", price: 9.99, was: 19.99, category: "Home", retailer: "Amazon", emoji: "💡",
+    take: "Instant room glow-up with an app or remote.", url: "https://www.amazon.com/s?k=led+strip+lights+16ft", checked: "2026-10-12", featured: 2 },
+  { name: "Faux Plant in Ceramic Pot", price: 7.99, was: 11.99, category: "Home", retailer: "Walmart", emoji: "🪴",
+    take: "Green vibes, zero watering.", url: "https://www.walmart.com/search?q=faux+plant+ceramic+pot", checked: "2026-10-12", featured: 6 },
+  { name: "Cloud Throw Pillow", price: 12.00, was: 15.00, category: "Home", retailer: "Target", emoji: "☁️",
+    take: "Soft, cute, and bed-ready.", url: "https://www.target.com/s?searchTerm=cloud+throw+pillow", checked: "2026-10-12", featured: 10 },
+  { name: "Desk Organizer Set", price: 8.49, was: 16.99, category: "Home", retailer: "Temu", emoji: "🗂️",
+    take: "Tames pens, cables, and clutter.", url: "https://www.temu.com/search_result.html?search_key=desk%20organizer%20set", checked: "2026-10-12", featured: 14 },
+
+  // Tech
+  { name: "Wireless Earbuds", price: 19.99, was: 39.99, category: "Tech", retailer: "Amazon", emoji: "🎧",
+    take: "Budget pick for music and calls.", url: "https://www.amazon.com/s?k=wireless+earbuds", checked: "2026-10-12", featured: 3 },
+  { name: "Phone Ring Light Clip", price: 8.99, was: 14.99, category: "Tech", retailer: "Walmart", emoji: "🤳",
+    take: "Better selfies and video calls.", url: "https://www.walmart.com/search?q=phone+ring+light+clip", checked: "2026-10-12", featured: 7 },
+  { name: "Portable Power Bank 10,000 mAh", price: 15.99, was: 29.99, category: "Tech", retailer: "Amazon", emoji: "🔋",
+    take: "About two full phone charges.", url: "https://www.amazon.com/s?k=portable+power+bank+10000mah", checked: "2026-10-12", featured: 11 },
+  { name: "Mini Bluetooth Speaker", price: 12.99, was: null, category: "Tech", retailer: "Target", emoji: "🔊",
+    take: "Small enough for a backpack pocket.", url: "https://www.target.com/s?searchTerm=mini+bluetooth+speaker", checked: "2026-10-12", featured: 15 },
+
+  // Active
+  { name: "Insulated Water Bottle (32 oz)", price: 13.99, was: 22.99, category: "Active", retailer: "Amazon", emoji: "🥤",
+    take: "Keeps drinks cold all day.", url: "https://www.amazon.com/s?k=insulated+water+bottle+32+oz", checked: "2026-10-12", featured: 4 },
+  { name: "Resistance Bands Set", price: 9.99, was: 18.99, category: "Active", retailer: "Walmart", emoji: "💪",
+    take: "Full workout that fits in a drawer.", url: "https://www.walmart.com/search?q=resistance+bands+set", checked: "2026-10-12", featured: 8 },
+  { name: "High-Waist Leggings", price: 11.99, was: 19.99, category: "Active", retailer: "Shein", emoji: "🩳",
+    take: "Gym-to-hangout comfy.", url: "https://us.shein.com/pdsearch/high%20waist%20leggings/", checked: "2026-10-12", featured: 12 },
+  { name: "Jump Rope with Counter", price: 6.49, was: 12.99, category: "Active", retailer: "Temu", emoji: "🪢",
+    take: "Counts your skips for you.", url: "https://www.temu.com/search_result.html?search_key=jump%20rope%20with%20counter", checked: "2026-10-12", featured: 16 },
+];
+
+/* ---------- Helpers ---------- */
+const $ = (s) => document.querySelector(s);
+const money = (n) => "$" + n.toFixed(2);
+const pctOff = (p) => (p.was && p.was > p.price) ? Math.round((1 - p.price / p.was) * 100) : 0;
+const fmtDate = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function dealUrl(p) {
+  if (p.affiliateUrl) return p.affiliateUrl;          // per-product override (Walmart, Target, etc.)
+  if (AFFILIATE.amazonTag && p.url.includes("amazon.com")) {
+    const u = new URL(p.url); u.searchParams.set("tag", AFFILIATE.amazonTag); return u.toString();
+  }
+  return p.url;
+}
+
+/* ---------- State + render ---------- */
+const state = { q: "", cat: "All", max: 50, sort: "featured" };
+
+function render() {
+  const q = state.q.trim().toLowerCase();
+  let list = products.filter((p) =>
+    (state.cat === "All" || p.category === state.cat) &&
+    p.price <= state.max &&
+    (!q || p.name.toLowerCase().includes(q) || p.retailer.toLowerCase().includes(q))
+  );
+  const sorters = {
+    featured: (a, b) => a.featured - b.featured,
+    low: (a, b) => a.price - b.price,
+    high: (a, b) => b.price - a.price,
+    discount: (a, b) => pctOff(b) - pctOff(a),
+  };
+  list.sort(sorters[state.sort]);
+
+  $("#count").textContent = list.length === 1 ? "1 deal" : list.length + " deals";
+
+  if (!list.length) {
+    $("#grid").innerHTML = `<div class="empty"><p>No deals match that. Try a different search or a higher max price.</p>
+      <button class="chip" id="reset">Clear filters</button></div>`;
+    $("#reset").onclick = resetFilters;
+    return;
+  }
+
+  $("#grid").innerHTML = list.map((p) => {
+    const off = pctOff(p);
+    return `<article class="card">
+      <div class="tile" data-cat="${p.category}" aria-hidden="true">
+        ${off ? `<span class="badge">${off}% off</span>` : ""}
+        <span>${p.emoji}</span>
+        <span class="cat-label">${p.category}</span>
+      </div>
+      <div class="body">
+        <span class="retailer">${esc(p.retailer)}</span>
+        <h2 class="name">${esc(p.name)}</h2>
+        <p class="take">${esc(p.take)}</p>
+        <div class="prices">
+          <span class="now">${money(p.price)}</span>
+          ${off ? `<s class="was" aria-label="Originally ${money(p.was)}">${money(p.was)}</s>` : ""}
+        </div>
+        <span class="checked">Checked ${fmtDate(p.checked)}</span>
+        <a class="btn" href="${esc(dealUrl(p))}" target="_blank" rel="noopener noreferrer sponsored">View deal</a>
+        <a class="reviews" href="${esc(dealUrl(p))}" target="_blank" rel="noopener noreferrer sponsored">Photos &amp; reviews</a>
+      </div>
+    </article>`;
+  }).join("");
+}
+
+function setCat(cat) {
+  state.cat = cat;
+  document.querySelectorAll(".chip[data-cat]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.cat === cat));
+  render();
+}
+function resetFilters() {
+  state.q = ""; $("#q").value = "";
+  state.max = 50; $("#max").value = 50; $("#maxOut").textContent = "$50";
+  setCat("All");
+}
+
+$("#q").addEventListener("input", (e) => { state.q = e.target.value; render(); });
+document.querySelectorAll(".chip[data-cat]").forEach((b) => b.addEventListener("click", () => setCat(b.dataset.cat)));
+$("#max").addEventListener("input", (e) => { state.max = +e.target.value; $("#maxOut").textContent = "$" + e.target.value; render(); });
+$("#sort").addEventListener("change", (e) => { state.sort = e.target.value; render(); });
+
+render();
+</script>
+</body>
+</html>
